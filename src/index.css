@@ -68,6 +68,7 @@ button:focus-visible {
 }
 
 @import 'tailwindcss';
+
 @plugin "daisyui" {
   themes: all;
 }

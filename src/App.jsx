@@ -1,9 +1,11 @@
 import "./App.css";
+import "./components/HeroSection.jsx";
+import HeroSection from "./components/HeroSection.jsx";
 
 function App() {
   return (
     <div data-theme="cupcake">
-      <h1 class="text-neutral text-3xl font-bold underline">Hello world!</h1>
+      <HeroSection />
     </div>
   );
 }
