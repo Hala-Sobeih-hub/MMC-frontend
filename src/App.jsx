@@ -1,11 +1,22 @@
 import "./App.css";
-import "./components/HeroSection.jsx";
-import HeroSection from "./components/HeroSection.jsx";
+// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+//Public Routes
+import Home from "./pages/Home.jsx";
 
 function App() {
   return (
     <div data-theme="cupcake">
-      <HeroSection />
+      <Home />
+      {/* <Router>
+        {/* <NavBar /> */}
+      {/* <Routes> */}
+      {/* PUBLIC ROUTES */}
+      {/* <Route path="/" element={<Home />} /> */}
+      {/* Protected Routes */}
+      {/* </Routes> */}
+      {/* <Footer /> */}
+      {/* </Router> */}
     </div>
   );
 }
