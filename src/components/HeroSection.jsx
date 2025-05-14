@@ -4,7 +4,6 @@ import heroImage from "../assets/heroImage-1.webp";
 
 export default function HeroSection() {
   return (
-    // <div>
     <div className="relative w-full">
       <img
         src={heroImage}
@@ -31,6 +30,5 @@ export default function HeroSection() {
         </button>
       </div>
     </div>
-    // </div>
   );
 }
