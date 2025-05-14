@@ -1,22 +1,28 @@
 // import { useEffect, useState } from 'react';
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LoginPage from './pages/Login/LoginPage.jsx';
 
 
 import "./App.css";
-import "./components/HeroSection.jsx";
-// import HeroSection from "./components/HeroSection.jsx";
+// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+//Public Routes
+import Home from "./pages/Home.jsx";
+import LoginPage from './pages/Login/LoginPage.jsx';
 
 function App() {
   return (
     <div data-theme="cupcake">
-      {/* <HeroSection /> */}
+      {/* <Home /> */}
       <Router>
+        {/* <NavBar /> */}
         <Routes>
-          <Route path="/" element={<LoginPage />} />
-          {/* Add other routes here */}
+          {/* PUBLIC ROUTES */}
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<LoginPage />} />
+          {/* Protected Routes */}
         </Routes>
+        {/* <Footer /> */}
       </Router>
     </div>
   );
