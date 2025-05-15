@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Icon } from "@iconify/react";
-import Logo from "../assets/MMC-Inflatable-logo.png";
+import Logo from "../assets/images/mmc-inflatable-logo.png";
 
 export default function NavBar() {
   // Add state for mobile menu
@@ -19,8 +19,8 @@ export default function NavBar() {
                 alt="Company Logo"
                 className="h-18 w-18 object-contain"
               />
-              <span className="ml-2 font-semibold text-gray-900 hidden sm:block">
-                MMC Inflatable
+              <span className="ml-2 font-semibold text-neutral hidden text-xl sm:block">
+                MMC Inflatables
               </span>
             </div>
 
@@ -28,25 +28,25 @@ export default function NavBar() {
             <nav className="hidden md:flex space-x-8">
               <a
                 href="#"
-                className="text-primary font-medium border-b-2 border-primary-500 px-1 py-2"
+                className="text-primary text-lg border-b-2 border-primary-500 px-1 py-2"
               >
                 Home
               </a>
               <a
                 href="#"
-                className="text-primary hover:text-secondary font-medium px-1 py-2"
+                className="text-primary hover:text-secondary text-lg px-1 py-2"
               >
                 Products
               </a>
               <a
                 href="#"
-                className="text-gray-600 hover:text-gray-900 font-medium px-1 py-2"
+                className="text-gray-600 hover:text-gray-900 text-lg px-1 py-2"
               >
                 About Us
               </a>
               <a
                 href="#"
-                className="text-gray-600 hover:text-gray-900 font-medium px-1 py-2"
+                className="text-gray-600 hover:text-gray-900 text-lg px-1 py-2"
               >
                 My Account
               </a>
