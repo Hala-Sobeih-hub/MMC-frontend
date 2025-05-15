@@ -27,25 +27,25 @@ export default function NavBar() {
             {/* Desktop navigation */}
             <nav className="hidden md:flex space-x-8">
               <a
-                href="#"
+                href="/"
                 className="text-primary text-lg border-b-2 border-primary-500 px-1 py-2"
               >
                 Home
               </a>
               <a
-                href="#"
+                href="/products"
                 className="text-primary hover:text-secondary text-lg px-1 py-2"
               >
                 Products
               </a>
               <a
-                href="#"
+                href="/about"
                 className="text-gray-600 hover:text-gray-900 text-lg px-1 py-2"
               >
                 About Us
               </a>
               <a
-                href="#"
+                href="/my-account"
                 className="text-gray-600 hover:text-gray-900 text-lg px-1 py-2"
               >
                 My Account
@@ -81,7 +81,7 @@ export default function NavBar() {
         {/* Mobile menu */}
         {isMenuOpen && (
           <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t">
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-secondary border-t">
               <a
                 href="#"
                 className="block px-3 py-2 text-base font-medium text-gray-900 bg-gray-50 rounded-md"
