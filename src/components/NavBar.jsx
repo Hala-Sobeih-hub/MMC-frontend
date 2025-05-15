@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Icon } from "@iconify/react";
-import Logo from "../assets/MMC-Inflatable-logo.png";
+import Logo from "../assets/MMC_Inflatable_Logo_2.webp";
 
 export default function NavBar() {
   // Add state for mobile menu
@@ -10,73 +10,70 @@ export default function NavBar() {
     <div>
       {/* Replace Navbar with standard HTML */}
       <header className="bg-secondary shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            {/* Logo section */}
-            <div className="flex items-center">
-              <img
-                src={Logo}
-                alt="Company Logo"
-                className="h-18 w-18 object-contain"
-              />
-              <span className="ml-2 font-semibold text-gray-900 hidden sm:block">
-                MMC Inflatable
-              </span>
-            </div>
+        {/* <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"> */}
+        <div className="flex justify-between h-16 items-center">
+          {/* Logo section */}
+          <div className="flex items-center">
+            <img
+              src={Logo}
+              alt="Company Logo"
+              className="h-18 w-18 object-contain"
+            />
+            <span className="ml-2 font-semibold text-neutral hidden sm:block">
+              MMC Inflatables
+            </span>
+          </div>
 
-            {/* Desktop navigation */}
-            <nav className="hidden md:flex space-x-8">
-              <a
-                href="#"
-                className="text-primary font-medium border-b-2 border-primary-500 px-1 py-2"
-              >
-                Home
-              </a>
-              <a
-                href="#"
-                className="text-primary hover:text-secondary font-medium px-1 py-2"
-              >
-                Products
-              </a>
-              <a
-                href="#"
-                className="text-gray-600 hover:text-gray-900 font-medium px-1 py-2"
-              >
-                About Us
-              </a>
-              <a
-                href="#"
-                className="text-gray-600 hover:text-gray-900 font-medium px-1 py-2"
-              >
-                My Account
-              </a>
-            </nav>
+          {/* Desktop navigation */}
+          <nav className="hidden md:flex space-x-8">
+            <a
+              href="/"
+              className="font-medium border-b-2 border-primary px-1 py-2"
+            >
+              Home
+            </a>
+            <a href="#" className="font-medium px-1 py-2">
+              Products
+            </a>
+            <a
+              href="#"
+              className="text-primary hover:text-neutral font-medium px-1 py-2"
+            >
+              About Us
+            </a>
+            <a
+              href="#"
+              className="text-gray-600 hover:text-gray-900 font-medium px-1 py-2"
+            >
+              My Account
+            </a>
+          </nav>
 
-            {/* Right side items */}
-            <div className="flex items-center">
-              {/* Cart button */}
-              <div className="relative">
-                <button
-                  className="p-2 rounded-full hover:bg-gray-100 text-gray-600"
-                  aria-label="Cart"
-                >
-                  <Icon icon="lucide:shopping-cart" width={20} height={20} />
-                  <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    5
-                  </span>
-                </button>
-              </div>
-
-              {/* Mobile menu button */}
+          {/* Right side items */}
+          <div className="flex items-center">
+            {/* Cart button */}
+            <div className="relative">
               <button
-                className="ml-4 md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="p-2 rounded-full hover:bg-gray-100 text-gray-600"
+                aria-label="Cart"
               >
-                <Icon icon="lucide:menu" width={24} height={24} />
+                <Icon icon="lucide:shopping-cart" width={20} height={20} />
+                <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  5
+                </span>
               </button>
             </div>
+
+            {/* Mobile menu button */}
+            <button
+              className="ml-4 md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <Icon icon="lucide:menu" width={24} height={24} />
+            </button>
           </div>
         </div>
+        {/* </div> */}
 
         {/* Mobile menu */}
         {isMenuOpen && (
