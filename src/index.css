@@ -5,7 +5,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #dcc1ab;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -42,12 +42,12 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #f67a48;
   cursor: pointer;
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: #32b0a9;
 }
 button:focus,
 button:focus-visible {
@@ -68,6 +68,7 @@ button:focus-visible {
 }
 
 @import 'tailwindcss';
+
 @plugin "daisyui" {
   themes: all;
 }
@@ -82,13 +83,13 @@ button:focus-visible {
   --color-base-300: #f67a48;
   --color-base-content: #083e47;
   --color-primary: #32b0a9;
-  --color-primary-content: oklch(43% 0.078 188.216);
+  /* --color-primary-content: oklch(43% 0.078 188.216); */
   --color-secondary: #dcc1ab;
-  --color-secondary-content: oklch(45% 0.187 3.815);
+  /* --color-secondary-content: oklch(45% 0.187 3.815); */
   --color-accent: #f67a48;
-  --color-accent-content: oklch(47% 0.157 37.304);
+  /* --color-accent-content: oklch(47% 0.157 37.304); */
   --color-neutral: #083e47;
-  --color-neutral-content: oklch(92% 0.004 286.32);
+  /* --color-neutral-content: oklch(92% 0.004 286.32); */
   --color-info: oklch(68% 0.169 237.323);
   --color-info-content: oklch(29% 0.066 243.157);
   --color-success: oklch(69% 0.17 162.48);

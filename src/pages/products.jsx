@@ -20,8 +20,12 @@ const Products = () => {
                 setProducts(data); // Update the products state with the fetched data
 
                 // Example: Extract booked and available dates from the API response
-                const booked = data.map((product) => new Date(product.bookedDate)); // Replace `bookedDate` with your API field
-                const available = data.map((product) => new Date(product.availableDate)); // Replace `availableDate` with your API field
+                const booked = data
+                    .map((product) => new Date(product.bookedDate))
+                    .filter((date) => !isNaN(date));
+                const available = data
+                    .map((product) => new Date(product.availableDate))
+                    .filter((date) => !isNaN(date));
                 setBookedDates(booked);
                 setAvailableDates(available);
             } catch (error) {
