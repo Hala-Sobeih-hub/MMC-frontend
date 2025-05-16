@@ -1,0 +1,13 @@
+.hero-wrapper::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 0;
+}
+
+.hero-wrapper > * {
+  position: relative;
+  z-index: 1;
+}
