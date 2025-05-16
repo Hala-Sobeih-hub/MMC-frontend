@@ -1,12 +1,15 @@
 import React from "react";
-import NavBar from "../components/NavBar.jsx";
 import HeroSection from "../components/HeroSection.jsx";
+
+import NavBar from "../components/NavBar.jsx";
+import Footer from "../components/Footer.jsx";
 
 export default function Home() {
   return (
     <div>
-      <NavBar />
+      {/* <NavBar /> */}
       <HeroSection />
+      {/* <Footer /> */}
     </div>
   );
 }

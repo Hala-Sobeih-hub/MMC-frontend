@@ -3,7 +3,8 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import "./App.css";
-// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import NavBar from "./components/NavBar.jsx";
+import Footer from "./components/Footer.jsx";
 
 //Public Routes
 import Home from "./pages/Home.jsx";
@@ -12,17 +13,15 @@ import LoginPage from "./pages/Login/LoginPage.jsx";
 function App() {
   return (
     <div data-theme="cupcake">
-      {/* <Home /> */}
-
       <Router>
-        {/* <NavBar /> */}
+        <NavBar />
         <Routes>
           {/* PUBLIC ROUTES */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
           {/* Protected Routes */}
         </Routes>
-        {/* <Footer /> */}
+        <Footer />
       </Router>
     </div>
   );
