@@ -12,7 +12,7 @@ import LoginPage from "./pages/Login/LoginPage.jsx";
 
 function App() {
   return (
-    <div data-theme="cupcake">
+    <div className="min-h-screen flex flex-col" data-theme="cupcake">
       <Router>
         <NavBar />
         <Routes>
