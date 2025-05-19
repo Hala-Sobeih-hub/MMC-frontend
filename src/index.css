@@ -12,9 +12,16 @@ body {
   margin: 0;
   display: flex;
   /* place-items: center; */
+  flex-direction: column; /*added*/
   min-width: 320px;
   min-height: 100vh;
   background-color: #dcc1ab; /*added*/
+}
+
+#root {
+  display: flex;
+  flex-direction: column; /* ✅ Stack NavBar -> Routes -> Footer */
+  flex: 1;
 }
 
 .button-default {
