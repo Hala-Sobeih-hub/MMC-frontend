@@ -17,7 +17,9 @@ export default function NavBar() {
               <img
                 src={Logo}
                 alt="Company Logo"
-                className="h-18 w-18 object-contain"
+                className="h-18 w-18 object-contain
+                max-w-[20em] rounded-full
+                "
               />
               <span className="ml-2 font-semibold text-neutral hidden text-xl sm:block">
                 MMC Inflatables
