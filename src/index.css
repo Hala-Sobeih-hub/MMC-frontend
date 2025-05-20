@@ -1,6 +1,7 @@
 
 
 
+
 a {
   font-weight: 500;
   color: #083e47;
@@ -15,8 +16,14 @@ body {
   margin: 0;
   display: flex;
   background-color: #dcc1ab; 
+
+  /* background-color: #dcc1ab; */
+  flex-direction: column;
+  /*added*/
   min-width: 320px;
   min-height: 100vh;
+  background-color: #dcc1ab;
+  /*added*/
 }
 
 h1 {
@@ -24,7 +31,7 @@ h1 {
   line-height: 1.1;
 }
 
-button {
+.button-default {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
@@ -35,6 +42,8 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
+
 
 button:hover {
   border-color: #32b0a9;
@@ -52,11 +61,11 @@ button:focus-visible {
   }
 
   a:hover {
-    color: #747bff;
+    color: #32b0a9;
   }
 
   button {
-    background-color: #f9f9f9;
+    background-color: #f67a48;
   }
 }
 
