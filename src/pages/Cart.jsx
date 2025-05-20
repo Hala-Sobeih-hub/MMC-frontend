@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import jwt_decode from "jwt-decode";
 
 export default function Cart({ newProductId, newQuantity, newRentalDate }) {
   const [cartItems, setCartItems] = useState([]);
@@ -11,24 +10,14 @@ export default function Cart({ newProductId, newQuantity, newRentalDate }) {
   const API = `http://localhost:8080/api/cart`;
 
   const token = localStorage.getItem("token");
+  console.log("Token:", token);
   let userId = null;
 
-  if (token) {
-    try {
-      const decoded = jwt_decode(token);
-      userId = decoded.id || decoded._id;
-    } catch (err) {
-      console.error("Invalid token", err);
-    }
-  }
-
   useEffect(() => {
-    if (!userId) return;
-
     const fetchAndUpdateCart = async () => {
       try {
         // 1. Fetch existing cart
-        const cartRes = await fetch(`${API}/user/${userId}`, {
+        const cartRes = await fetch(`${API}/user/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -109,7 +98,7 @@ export default function Cart({ newProductId, newQuantity, newRentalDate }) {
     fetchAndUpdateCart();
   }, [userId, newProductId, newQuantity, newRentalDate]);
 
-  if (!userId) return <div className="p-4">Please log in.</div>;
+  // if (!userId) return <div className="p-4">Please log in.</div>;
   if (loading) return <div className="p-4">Loading cart...</div>;
 
   const total = cartItems.reduce(
@@ -143,7 +132,7 @@ export default function Cart({ newProductId, newQuantity, newRentalDate }) {
             >
               <div className="flex items-center gap-4">
                 <img
-                  src={item.image}
+                  src={item.imageUrl}
                   alt={item.name}
                   className="w-20 h-20 object-cover rounded"
                 />

@@ -5,11 +5,14 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 import NavBar from "./components/NavBar.jsx";
 import Footer from "./components/Footer.jsx";
-import Cart from "./components/Cart.jsx";
 
 //Public Routes
 import Home from "./pages/Home.jsx";
 import LoginPage from "./pages/Login/LoginPage.jsx";
+import ForgotPassword from "./pages/Password/ForgotPassword.jsx";
+import ResetPassword from "./pages/Password/ResetPassword.jsx";
+import AdminInvitation from "./pages/Admin/AdminInvitation.jsx";
+import Cart from "./pages/Cart.jsx";
 
 function App() {
   return (
@@ -20,6 +23,8 @@ function App() {
           {/* PUBLIC ROUTES */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/password/forgot" element={<ForgotPassword />} />
+          <Route path="/password/reset" element={<ResetPassword />} />
           {/* Protected Routes */}
           <Route
             path="/cart"
@@ -29,6 +34,7 @@ function App() {
               // </ProtectedRoute>
             }
           />
+          <Route path="/invite-admin" element={<AdminInvitation />} />
         </Routes>
         <Footer />
       </Router>
