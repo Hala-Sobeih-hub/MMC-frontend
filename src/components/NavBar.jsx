@@ -33,7 +33,7 @@ export default function NavBar() {
                 Home
               </a>
               <a
-                href="#"
+                href="/products"
                 className="text-primary hover:text-secondary text-lg px-1 py-2"
               >
                 Products

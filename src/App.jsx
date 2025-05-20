@@ -4,13 +4,13 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 
 import "./App.css";
- import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
+ 
 //Public Routes
 import Home from "./pages/Home.jsx";
 import LoginPage from './pages/Login/LoginPage.jsx';
 import Products from "./pages/products.jsx";
 import Testimonials from "./pages/testimonials.jsx";
+import ProductDetails from "./pages/productDetails.jsx";
 
 function App() {
   return (
@@ -24,6 +24,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/products" element={<Products />} />
           <Route path="/testimonials" element={<Testimonials />} />
+          <Route path="/products/:id" element={<ProductDetails />} />
           {/* Protected Routes */}
         </Routes>
         {/* <Footer /> */}

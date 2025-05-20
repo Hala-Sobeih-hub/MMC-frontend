@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css"; // Import the default styles
+import NavBar from "../components/NavBar";
+import { Link } from "react-router-dom";
 
 const Products = () => {
     const [products, setProducts] = useState([]); // State to hold the list of products
@@ -17,6 +19,7 @@ const Products = () => {
                     throw new Error("Network response was not ok");
                 }
                 const data = await response.json(); // Parse the JSON response
+                console.log(data); // Log the fetched data for debugging
                 setProducts(data); // Update the products state with the fetched data
 
                 // Example: Extract booked and available dates from the API response
@@ -52,34 +55,33 @@ const Products = () => {
     }
 
     return (
-        <div>
-            <h1>Products</h1>
+        <>
+            <NavBar />
+            <div className="container bg-secondary mx-auto px-4 py-8">
+                <h1 className="text-primary text-3xl font-bold mb-6 text-center">Products</h1>
 
-            {/* Day Picker with Custom Modifiers */}
-            <div>
-                <h2>Calendar</h2>
-                <DayPicker
-                    modifiers={{
-                        booked: bookedDates,
-                        available: availableDates,
-                    }}
-                    modifiersStyles={{
-                        booked: { textDecoration: "line-through", backgroundColor: "#f67a48" },
-                        available: { backgroundColor: "#32b0a9", color: "white" },
-                    }}
-                />
+
+
+
+                {/* Product List */}
+                <ul className="text-neutral grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {products.map((product) => (
+                        <li key={product._id} className="card bg-base-100 shadow-xl p-6 flex flex-col gap-2">
+                            <Link to={`/products/${product._id}`}>
+                            <img
+                                src={product.imageUrl}
+                                alt={product.name}
+                                className="w-full h-48 object-cover rounded-lg mb-4"
+                            />
+                            <strong className="text-sky-600 text-lg">{product.name}</strong>
+                            {/* <span className="font-semibold">${product.price}</span> */}
+                            {/* <p className="text-primary-600">{product.description}</p> */}
+                            </Link>
+                        </li>
+                    ))}
+                </ul>
             </div>
-
-            {/* List of products */}
-            <ul>
-                {products.map((product) => (
-                    <li key={product._id}>
-                        <strong>{product.name}</strong> - ${product.price}
-                        <p>{product.description}</p>
-                    </li>
-                ))}
-            </ul>
-        </div>
+        </>
     );
 };
 

@@ -48,9 +48,17 @@ const Testimonials = () => {
                     <li key={testimonial.id}>
                         <p>{testimonial.content}</p>
                         <p>- {testimonial.author}</p>
+
+                        <p>
+                            Rating:{" "}
+                            {"⭐".repeat(testimonial.rating) + "☆".repeat(5 - testimonial.rating)}
+
+                        </p>
                     </li>
                 ))}
             </ul>
         </div>
     );
 }
+
+export default Testimonials;
