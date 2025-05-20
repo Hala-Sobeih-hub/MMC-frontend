@@ -1,10 +1,10 @@
 // import { useEffect, useState } from 'react';
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import "./App.css";
-// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import NavBar from "./components/NavBar.jsx";
+import Footer from "./components/Footer.jsx";
 
 //Public Routes
 import Home from "./pages/Home.jsx";
@@ -15,10 +15,9 @@ import AdminInvitation from './pages/Admin/AdminInvitation.jsx';
 
 function App() {
   return (
-    <div data-theme="cupcake">
-      {/* <Home /> */}
+    <div className="min-h-screen flex flex-col" data-theme="cupcake">
       <Router>
-        {/* <NavBar /> */}
+        <NavBar />
         <Routes>
           {/* PUBLIC ROUTES */}
           <Route path="/" element={<Home />} />
@@ -28,11 +27,10 @@ function App() {
           {/* Protected Routes */}
           <Route path="/invite-admin" element={<AdminInvitation />} />
         </Routes>
-        {/* <Footer /> */}
+        <Footer />
       </Router>
     </div>
   );
-
 }
 
 export default App;

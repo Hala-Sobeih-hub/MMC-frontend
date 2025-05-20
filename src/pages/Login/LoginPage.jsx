@@ -13,7 +13,7 @@ const LoginPage = () => {
     const [email, setEmail] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
+    // const [showPassword, setShowPassword] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState("");
     const [deliveryAddress, setDeliveryAddress] = useState({
         streetAddress: "",
@@ -89,9 +89,9 @@ const LoginPage = () => {
         // }}
         >
             <div className="w-full max-w-xl p-8 space-y-6 bg-secondary ">
-                <div className="flex justify-center">
+                {/* <div className="flex justify-center">
                     <img src={Logo} alt="MMC Inflatables Logo" className="max-w-[20em] h-[20em] object-cover rounded-full" />
-                </div>
+                </div> */}
                 <h1 className="text-3xl font-bold text-center text-white">{isLogin ? "Login" : "Signup"}</h1>
                 {/* <div className='flex justify-center space-x-4 mb-4'>
                     <button
