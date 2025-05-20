@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 import NavBar from "./components/NavBar.jsx";
 import Footer from "./components/Footer.jsx";
+import Cart from "./components/Cart.jsx";
 
 //Public Routes
 import Home from "./pages/Home.jsx";
@@ -20,6 +21,14 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
           {/* Protected Routes */}
+          <Route
+            path="/cart"
+            element={
+              // <ProtectedRoute>
+              <Cart />
+              // </ProtectedRoute>
+            }
+          />
         </Routes>
         <Footer />
       </Router>

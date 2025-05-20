@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
 import jwt_decode from "jwt-decode";
 
-export default function Cart({ newProductId, newQuantity }) {
+export default function Cart({ newProductId, newQuantity, newRentalDate }) {
   const [cartItems, setCartItems] = useState([]);
+  const [cartId, setCartId] = useState(null);
+  const [userInfo, setUserInfo] = useState({});
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // Get token and decode user ID
+  const API = `http://localhost:8080/api/cart`;
+
   const token = localStorage.getItem("token");
   let userId = null;
 
@@ -23,8 +27,8 @@ export default function Cart({ newProductId, newQuantity }) {
 
     const fetchAndUpdateCart = async () => {
       try {
-        // 1. Fetch user's existing cart
-        const cartRes = await fetch(`/api/cart/user/${userId}`, {
+        // 1. Fetch existing cart
+        const cartRes = await fetch(`${API}/user/${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -32,65 +36,101 @@ export default function Cart({ newProductId, newQuantity }) {
 
         if (!cartRes.ok) throw new Error("Failed to fetch cart");
 
-        let cartData = await cartRes.json();
-        let updatedItems = [...(cartData.items || [])];
+        const cartData = await cartRes.json();
+        const existingCart = cartData.result;
+        let updatedItems = [...(existingCart?.itemsList || [])];
+        setCartId(existingCart._id);
+        setUserInfo(existingCart.userId);
 
-        // 2. If new item passed in props, add or update it
-        if (newProductId && newQuantity) {
+        // 2. Add/update new item
+        if (newProductId && newQuantity && newRentalDate) {
           const existingItem = updatedItems.find(
             (item) => item.productId === newProductId
           );
 
           if (existingItem) {
-            existingItem.quantity += newQuantity;
+            existingItem.quantity = newQuantity;
           } else {
+            // Fetch product price
+            const prodRes = await fetch(
+              `http://localhost:8080/api/products/${newProductId}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+            const product = await prodRes.json();
+
             updatedItems.push({
               productId: newProductId,
               quantity: newQuantity,
+              price: product.result.price,
+              rentalDate: newRentalDate,
             });
           }
 
-          // 3. Save updated cart back to DB
-          const saveRes = await fetch(`/api/cart/${cartData._id}`, {
+          // 3. Save updated cart
+          const saveRes = await fetch(`${API}/${existingCart._id}`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ items: updatedItems }),
+            body: JSON.stringify({
+              itemsList: updatedItems,
+              deliveryAddress: existingCart.deliveryAddress || "TBD",
+              eventNotes: existingCart.eventNotes || "",
+            }),
           });
 
           if (!saveRes.ok) throw new Error("Failed to update cart");
         }
 
-        // 4. Get detailed product info for display
-        const fullItems = await Promise.all(
-          updatedItems.map(async (item) => {
-            const res = await fetch(`/api/products/${item.productId}`);
-            const product = await res.json();
-            return {
-              ...product,
-              quantity: item.quantity,
-            };
-          })
-        );
+        // 4. Get detailed product info
+        const detailedItems = (existingCart.itemsList || []).map((item) => ({
+          name: item.productId.name,
+          image: item.productId.image,
+          price: item.productId.price,
+          quantity: item.quantity,
+          rentalDate: item.rentalDate,
+          _id: item.productId._id,
+        }));
 
-        setCartItems(fullItems);
+        setCartItems(detailedItems);
         setLoading(false);
       } catch (err) {
         console.error("Cart error:", err.message);
+        setError("Error loading cart");
         setLoading(false);
       }
     };
 
     fetchAndUpdateCart();
-  }, [userId, newProductId, newQuantity]);
+  }, [userId, newProductId, newQuantity, newRentalDate]);
 
+  if (!userId) return <div className="p-4">Please log in.</div>;
   if (loading) return <div className="p-4">Loading cart...</div>;
+
+  const total = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
   return (
     <div className="p-4 max-w-4xl mx-auto">
       <h2 className="text-2xl font-bold mb-4">Your Cart</h2>
+
+      {userInfo && (
+        <div className="mb-4">
+          <p className="font-semibold">
+            User: {userInfo.firstName} {userInfo.lastName}
+          </p>
+          <p>Email: {userInfo.email}</p>
+        </div>
+      )}
+
+      {error && <p className="text-red-500 font-semibold">{error}</p>}
 
       {cartItems.length === 0 ? (
         <p>No items in the cart.</p>
@@ -110,6 +150,7 @@ export default function Cart({ newProductId, newQuantity }) {
                 <div>
                   <h3 className="text-lg font-semibold">{item.name}</h3>
                   <p>Quantity: {item.quantity}</p>
+                  <p>Rental Date: {item.rentalDate}</p>
                 </div>
               </div>
               <div className="text-right">
@@ -119,6 +160,9 @@ export default function Cart({ newProductId, newQuantity }) {
               </div>
             </div>
           ))}
+          <div className="text-right text-xl font-bold pt-4 border-t">
+            Total: ${total.toFixed(2)}
+          </div>
         </div>
       )}
     </div>
