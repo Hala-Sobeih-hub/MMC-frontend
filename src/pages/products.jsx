@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css"; // Import the default styles
-import NavBar from "../components/NavBar";
 import { Link } from "react-router-dom";
+
 
 const Products = () => {
     const [products, setProducts] = useState([]); // State to hold the list of products
@@ -56,7 +56,7 @@ const Products = () => {
 
     return (
         <>
-            <NavBar />
+          
             <div className="container bg-secondary mx-auto px-4 py-8">
                 <h1 className="text-primary text-3xl font-bold mb-6 text-center">Products</h1>
 
