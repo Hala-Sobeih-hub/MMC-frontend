@@ -1,10 +1,54 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { Icon } from "@iconify/react";
 import Logo from "../assets/images/mmc-inflatable-logo.png";
 
 export default function NavBar() {
   // Add state for mobile menu
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [cartItems, setCartItems] = useState(0);
+  // const [userInfo, setUserInfo] = useState({});
+
+  const API = `http://localhost:8080/api/cart`;
+  const token = localStorage.getItem("token");
+
+  const navigate = useNavigate();
+
+  //Get User Info and Number of items in cart
+  useEffect(() => {
+    const fetchCartInfo = async () => {
+      try {
+        //if token is not present, set cartItems to 0
+        if (!token) {
+          setCartItems(0);
+          return;
+        } else {
+          // else if token exists, fetch the cart
+          const res = await fetch(`${API}/user/`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          //if there is no cart, set cartItems to 0
+          if (!res.ok) {
+            setCartItems(0);
+            return;
+          } else {
+            //else if there is a cart, get the number of items in the cart
+            const data = await res.json();
+            console.log("Cart Response:", data.result);
+            setCartItems(data.result.itemsList.length);
+            //setUserInfo(data.result.userId);
+            //console.log("User Info:", data.result.userId);
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchCartInfo();
+  }, []);
 
   return (
     <div>
@@ -51,6 +95,7 @@ export default function NavBar() {
                 className="text-gray-600 hover:text-gray-900 text-lg px-1 py-2"
               >
                 My Account
+                {/* , {userInfo.firstName} {userInfo.lastName} */}
               </a>
             </nav>
 
@@ -61,10 +106,11 @@ export default function NavBar() {
                 <button
                   className="p-2 rounded-full hover:bg-gray-100 text-gray-600"
                   aria-label="Cart"
+                  onClick={() => navigate("/cart")}
                 >
                   <Icon icon="lucide:shopping-cart" width={20} height={20} />
                   <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    5
+                    {cartItems}
                   </span>
                 </button>
               </div>

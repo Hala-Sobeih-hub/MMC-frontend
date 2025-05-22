@@ -3,13 +3,6 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import "./App.css";
- 
-//Public Routes
-import Home from "./pages/Home.jsx";
-import LoginPage from './pages/Login/LoginPage.jsx';
-import Products from "./pages/products.jsx";
-import Testimonials from "./pages/testimonials.jsx";
-import ProductDetails from "./pages/productDetails.jsx";
 
 import NavBar from "./components/NavBar.jsx";
 import Footer from "./components/Footer.jsx";
@@ -21,6 +14,11 @@ import ForgotPassword from "./pages/Password/ForgotPassword.jsx";
 import ResetPassword from "./pages/Password/ResetPassword.jsx";
 import AdminInvitation from "./pages/Admin/AdminInvitation.jsx";
 import Cart from "./pages/Cart.jsx";
+import Booking from "./pages/Booking.jsx";
+import Products from "./pages/products.jsx";
+import Testimonials from "./pages/testimonials.jsx";
+import ProductDetails from "./pages/productDetails.jsx";
+import MyPreviousBookings from "./pages/MyPreviousBookings.jsx";
 
 function App() {
   return (
@@ -46,6 +44,9 @@ function App() {
               // </ProtectedRoute>
             }
           />
+          <Route path="/booking" element={<Booking />} />
+          <Route path="/my-bookings" element={<MyPreviousBookings />} />
+
           <Route path="/invite-admin" element={<AdminInvitation />} />
         </Routes>
         <Footer />
