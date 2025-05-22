@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-export default function Cart() {
+export default function Cart({ setUpdateCart }) {
   const [cartItems, setCartItems] = useState([]);
   const [newCartItem, setNewCartItem] = useState(null);
   const [cartId, setCartId] = useState(null);
@@ -103,6 +103,10 @@ export default function Cart() {
                 0
               )
             );
+            console.log(
+              "Local Storage from Cart.jsx 1: ",
+              localStorage.getItem("cartItemCount")
+            );
           } else {
             // If the cart exists, read the cart data
             const cartData = await res.json();
@@ -161,9 +165,12 @@ export default function Cart() {
 
             localStorage.setItem(
               "cartItemCount",
-              data.result.itemsList
-                .map(formatItem)
-                .reduce((sum, item) => sum + item.quantity, 0)
+              cart.itemsList.reduce((sum, item) => sum + item.quantity, 0)
+            );
+
+            console.log(
+              "Local Storage from Cart.jsx 2: ",
+              localStorage.getItem("cartItemCount")
             );
           }
 
@@ -194,11 +201,31 @@ export default function Cart() {
     const updatedItems = cartItems.map((item) =>
       item._id === productId ? { ...item, quantity: newQty } : item
     );
+    localStorage.setItem(
+      "cartItemCount",
+      updatedItems.reduce((sum, item) => sum + item.quantity, 0)
+    );
+
+    console.log(
+      "Local Storage from Cart.jsx 3 (update Quantity): ",
+      localStorage.getItem("cartItemCount")
+    );
+
+    setUpdateCart((prev) => !prev);
     await saveCart(updatedItems);
   };
 
   const removeItem = async (productId) => {
     const updatedItems = cartItems.filter((item) => item._id !== productId);
+    localStorage.setItem(
+      "cartItemCount",
+      updatedItems.reduce((sum, item) => sum + item.quantity, 0)
+    );
+
+    console.log(
+      "Local Storage from Cart.jsx 4: (removeItem)",
+      localStorage.getItem("cartItemCount")
+    );
     await saveCart(updatedItems);
   };
 

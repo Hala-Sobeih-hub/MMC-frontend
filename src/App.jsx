@@ -1,5 +1,5 @@
 // import { useEffect, useState } from 'react';
-import React from "react";
+import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import "./App.css";
@@ -20,14 +20,16 @@ import Testimonials from "./pages/testimonials.jsx";
 import ProductDetails from "./pages/productDetails.jsx";
 import MyPreviousBookings from "./pages/MyPreviousBookings.jsx";
 
-import AdminManagement from './pages/Admin/AdminManagement.jsx';
+import AdminManagement from "./pages/Admin/AdminManagement.jsx";
 import UserAccount from "./pages/UserAccount.jsx";
 
 function App() {
+  const [updateCart, setUpdateCart] = useState(false);
+
   return (
     <div className="min-h-screen flex flex-col" data-theme="cupcake">
       <Router>
-        <NavBar />
+        <NavBar updateCart={updateCart} />
         <Routes>
           {/* PUBLIC ROUTES */}
           <Route path="/" element={<Home />} />
@@ -43,7 +45,7 @@ function App() {
             path="/cart"
             element={
               // <ProtectedRoute>
-              <Cart />
+              <Cart setUpdateCart={setUpdateCart} />
               // </ProtectedRoute>
             }
           />
@@ -53,8 +55,6 @@ function App() {
           <Route path="/invite-admin" element={<AdminInvitation />} />
           <Route path="/admin-management" element={<AdminManagement />} />
           <Route path="/user-account" element={<UserAccount />} />
-
-
         </Routes>
         <Footer />
       </Router>

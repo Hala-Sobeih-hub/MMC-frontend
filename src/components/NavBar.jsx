@@ -5,7 +5,7 @@ import { NavLink } from "react-router-dom"; // Import NavLink
 import { Icon } from "@iconify/react";
 import Logo from "../assets/images/mmc-inflatable-logo.png";
 
-export default function NavBar() {
+export default function NavBar({ updateCart }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   // const navigate = useNavigate();
   const isLoggedIn = localStorage.getItem("Auth") === "true";
@@ -24,6 +24,8 @@ export default function NavBar() {
 
   //Get User Info and Number of items in cart
   useEffect(() => {
+    console.log("fetching cart info");
+
     const storedCount = parseInt(localStorage.getItem("cartItemCount")) || 0;
     setCartItems(storedCount); // quick load
 
@@ -38,7 +40,6 @@ export default function NavBar() {
           const res = await fetch(`${API}/user/`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-
           //if there is no cart, set cartItems to 0
           if (!res.ok) {
             setCartItems(0);
@@ -62,9 +63,8 @@ export default function NavBar() {
         console.error(err);
       }
     };
-
     fetchCartInfo();
-  }, []);
+  }, [updateCart]);
 
   return (
     <header className="bg-secondary shadow-sm">
@@ -160,7 +160,7 @@ export default function NavBar() {
               >
                 <Icon icon="lucide:shopping-cart" width={20} height={20} />
                 <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  5
+                  {cartItems} {/* Display number of items in cart */}
                 </span>
               </button>
             </div>
