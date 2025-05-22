@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import jwt_decode from "jwt-decode";
+
 
 export default function Cart({ newProductId, newQuantity }) {
   const [cartItems, setCartItems] = useState([]);
@@ -9,17 +9,10 @@ export default function Cart({ newProductId, newQuantity }) {
   const token = localStorage.getItem("token");
   let userId = null;
 
-  if (token) {
-    try {
-      const decoded = jwt_decode(token);
-      userId = decoded.id || decoded._id;
-    } catch (err) {
-      console.error("Invalid token", err);
-    }
-  }
+  
 
   useEffect(() => {
-    if (!userId) return;
+
 
     const fetchAndUpdateCart = async () => {
       try {

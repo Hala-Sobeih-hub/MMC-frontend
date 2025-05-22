@@ -5,8 +5,8 @@ import "react-day-picker/dist/style.css";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const ProductDetails = () => {
-    const { id } = useParams();
     const [product, setProduct] = useState(null);
+    const [productId, setProductId] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedDate, setSelectedDate] = useState(); // State to 
@@ -17,48 +17,55 @@ const ProductDetails = () => {
 
 
 
-const handleBook = async () => {
-    // Handle booking logic here
-    try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            //save the current location to redirect after login
-            // navigate("/login", { state: { from: location.pathname } });
-            return;
+    const handleBook = async () => {
+        // Handle booking logic here
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                //save the current location to redirect after login
+                navigate("/login", { state: { from: location.pathname } });
+                return;
+            }
+            const response = await fetch('http://localhost:8080/api/cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+
+                body: JSON.stringify({
+                    productId: product._id,
+                    name: product.name,
+                    date: selectedDate,
+                    quantity: quantity,
+                }),
+            });
+
+
+            const data = await response.json();
+            console.log("Added to cart:", data);
+            navigate("/Cart"); // Redirect to the cart page after adding
+        } catch (error) {
+            console.error("Error adding to cart:", error);
         }
-        const response = await fetch('http://localhost:8080/api/cart', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            
-            body: JSON.stringify({ productId: product._id,
-                name: product.name,
-                date: selectedDate,
-                quantity: quantity,
-             }),
+
+        console.log({
+            productId: product._id,
+            name: product.name,
+            date: selectedDate,
+            quantity: quantity,
         });
+
+    };
+
+   
     
-
-        const data = await response.json();
-        console.log("Added to cart:", data);
-        // navigate("/cart"); // Redirect to the cart page after adding
-    } catch (error) {
-        console.error("Error adding to cart:", error);
-    }
-
-    console.log({
-        productId: product._id,
-        name: product.name,
-        date: selectedDate,
-        quantity: quantity,
-    });
     
-};
-
-
     useEffect(() => {
+        setProductId(window.location.pathname.split("/")[2]) 
         const fetchProduct = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/api/products/${id}`);
+                const response = await fetch(`http://localhost:8080/api/products/${(window.location.pathname.split("/")[2]) }`);
                 if (!response.ok) throw new Error("Network response was not ok");
                 const data = await response.json();
                 setProduct(data);
@@ -69,7 +76,7 @@ const handleBook = async () => {
             }
         };
         fetchProduct();
-    }, [id]);
+    }, [productId]);
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
@@ -87,20 +94,20 @@ const handleBook = async () => {
             <p className="text-primary-600 mb-4">{product.description}</p>
             <div className="mt-2 flex justify-center">
 
-            <div className="bg-primary rounded-xl p-4 shadow">
-                <DayPicker
-                    selected={selectedDate} // Pass the selected date to the DayPicker
-                    onDayClick={(day) => setSelectedDate(day)} // Update the selected date on click
-                    onSelect={setSelectedDate} // Update the selected date
-                    modifiers={{
-                        booked: product.bookedDate ? [new Date(product.bookedDate)] : [],
-                        available: product.availableDate ? [new Date(product.availableDate)] : [],
-                    }}
-                    modifiersStyles={{
-                        booked: { textDecoration: "line-through", backgroundColor: "#f67a48" },
-                        available: { backgroundColor: "#32b0a9", color: "white" },
-                    }}
-                />
+                <div className="bg-primary rounded-xl p-4 shadow">
+                    <DayPicker
+                        selected={selectedDate} // Pass the selected date to the DayPicker
+                        onDayClick={(day) => setSelectedDate(day)} // Update the selected date on click
+                        onSelect={setSelectedDate} // Update the selected date
+                        modifiers={{
+                            booked: product.bookedDate ? [new Date(product.bookedDate)] : [],
+                            available: product.availableDate ? [new Date(product.availableDate)] : [],
+                        }}
+                        modifiersStyles={{
+                            booked: { textDecoration: "line-through", backgroundColor: "#f67a48" },
+                            available: { backgroundColor: "#32b0a9", color: "white" },
+                        }}
+                    />
                 </div>
 
                 {selectedDate && (
@@ -109,8 +116,12 @@ const handleBook = async () => {
                             Selected Date: {selectedDate.toLocaleDateString()}
                         </span>
                         {/* Add your booking button here */}
-                        <button className="btn btn-primary ml-4" onClick={handleBook}>Book This Date</button>
-                        
+                        <button className="btn btn-primary ml-4" onClick={() => {
+                            navigate("/cart?quanitity=5");
+
+                        }
+                        }>Book This Date</button>
+
                     </div>
                 )}
             </div>
