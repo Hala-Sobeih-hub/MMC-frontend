@@ -35,9 +35,9 @@ const AdminInvitation = () => {
         <div className="flex items-center justify-center min-h-screen bg-base-200">
             <div className="card w-full max-w-md shadow-xl bg-base-100">
                 <div className="card-body p-16">
-                    <div className="flex justify-center mb-6">
+                    {/* <div className="flex justify-center mb-6">
                         <img src={Logo} alt="MMC Inflatables Logo" className="w-50 h-50 object-cover rounded-full" />
-                    </div>
+                    </div> */}
                     <h1 className="text-2xl font-bold text-center text-white pb-3">Invite Admin</h1>
                     <form onSubmit={handleSubmit} className="space-y-10">
                         <div className="form-control">
