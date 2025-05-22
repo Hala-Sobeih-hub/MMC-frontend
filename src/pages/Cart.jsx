@@ -96,6 +96,13 @@ export default function Cart() {
 
             setUserInfo(data.result.userId);
             setCartItems(data.result.itemsList.map(formatItem));
+            localStorage.setItem(
+              "cartItemCount",
+              data.result.itemsList.reduce(
+                (sum, item) => sum + item.quantity,
+                0
+              )
+            );
           } else {
             // If the cart exists, read the cart data
             const cartData = await res.json();
@@ -151,6 +158,13 @@ export default function Cart() {
 
             // Use fully populated items
             setCartItems(cart.itemsList.map(formatItem));
+
+            localStorage.setItem(
+              "cartItemCount",
+              data.result.itemsList
+                .map(formatItem)
+                .reduce((sum, item) => sum + item.quantity, 0)
+            );
           }
 
           setLoading(false);
@@ -218,6 +232,10 @@ export default function Cart() {
       if (!response.ok) throw new Error("Failed to update cart");
 
       setCartItems(items);
+      localStorage.setItem(
+        "cartItemCount",
+        items.reduce((sum, item) => sum + item.quantity, 0)
+      );
     } catch (err) {
       console.error("Update Error:", err.message);
       setError("Failed to update cart.");

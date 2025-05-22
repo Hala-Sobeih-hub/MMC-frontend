@@ -17,6 +17,9 @@ export default function NavBar() {
 
   //Get User Info and Number of items in cart
   useEffect(() => {
+    const storedCount = parseInt(localStorage.getItem("cartItemCount")) || 0;
+    setCartItems(storedCount); // quick load
+
     const fetchCartInfo = async () => {
       try {
         //if token is not present, set cartItems to 0
@@ -37,7 +40,13 @@ export default function NavBar() {
             //else if there is a cart, get the number of items in the cart
             const data = await res.json();
             console.log("Cart Response:", data.result);
-            setCartItems(data.result.itemsList.length);
+            //setCartItems(data.result.itemsList.length);
+            const itemCount = data.result.itemsList.reduce(
+              (sum, item) => sum + item.quantity,
+              0
+            );
+            setCartItems(itemCount);
+            localStorage.setItem("cartItemCount", itemCount); // keep in sync
             //setUserInfo(data.result.userId);
             //console.log("User Info:", data.result.userId);
           }
