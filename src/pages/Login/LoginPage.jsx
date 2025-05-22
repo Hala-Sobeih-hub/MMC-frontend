@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 // import bounceImage1 from "../../assets/images/bounce-image-1.jpg";
 // import bounceImage2 from "../../assets/images/bounce-image-2.jpg";
 // import bounceImage3 from "../../assets/images/bounce-image-3.jpg";
-import Logo from "../../assets/images/mmc-inflatable-logo.png";
+// import Logo from "../../assets/images/mmc-inflatable-logo.png";
 
 const LoginPage = () => {
     const [isLogin, setIsLogin] = useState(true);
@@ -23,6 +23,7 @@ const LoginPage = () => {
     });
 
     const [errorMsg, setErrorMsg] = useState("");
+    const [showPassword, setShowPassword] = useState(false); // Toggle for password visibility
 
     // const [currentImage, setCurrentImage] = useState(0);
     const navigate = useNavigate();
@@ -68,7 +69,10 @@ const LoginPage = () => {
 
             if (isLogin) {
                 localStorage.setItem("token", data.Token);
+                localStorage.setItem("Auth", data.User.isAdmin);
                 navigate("/");
+
+
             } else {
                 alert("Signup successful! Please log in.");
                 setIsLogin(true); // Switch to login form after signup
@@ -254,18 +258,26 @@ const LoginPage = () => {
                             required
                         />
                     </div>
-                    <div className="form-control">
+                    <div className="form-control relative">
                         <label className="label">
                             <span className="label-text text-xl">Password</span>
                         </label>
                         <input
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             placeholder="Enter your password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             className="input input-bordered w-full"
                             required
                         />
+
+                        <button
+                            type="button"
+                            className="absolute right-3 top-8.5 text-gray-500"
+                            onClick={() => setShowPassword(!showPassword)} // Toggle visibility
+                        >
+                            {showPassword ? "Hide" : "Show"}
+                        </button>
                     </div>
                     {/* Error message */}
                     {errorMsg && <p className="text-red-500 text-sm">{errorMsg}</p>}

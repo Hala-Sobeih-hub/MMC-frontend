@@ -13,6 +13,9 @@ import ForgotPassword from './pages/Password/ForgotPassword.jsx';
 import ResetPassword from './pages/Password/ResetPassword.jsx';
 import AdminInvitation from './pages/Admin/AdminInvitation.jsx';
 
+import AdminManagement from './pages/Admin/AdminManagement.jsx';
+import UserAccount from "./pages/UserAccount.jsx";
+
 function App() {
   return (
     <div className="min-h-screen flex flex-col" data-theme="cupcake">
@@ -23,9 +26,13 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/password/forgot" element={<ForgotPassword />} />
-          <Route path="/password/reset" element={<ResetPassword />} />
+          <Route path="/password/reset/:token" element={<ResetPassword />} />
           {/* Protected Routes */}
           <Route path="/invite-admin" element={<AdminInvitation />} />
+          <Route path="/admin-management" element={<AdminManagement />} />
+          <Route path="/user-account" element={<UserAccount />} />
+
+
         </Routes>
         <Footer />
       </Router>
