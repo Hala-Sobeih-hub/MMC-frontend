@@ -1,5 +1,5 @@
 // import { useEffect, useState } from 'react';
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import "./App.css";
@@ -30,14 +30,36 @@ import Cart from "./components/Cart.jsx";
 function App() {
   const [updateCart, setUpdateCart] = useState(false);
 
+
+  const [token, setToken] = useState("");
+
+  const updateToken = (passedToken, Auth) => {
+    localStorage.setItem("token", passedToken);
+    localStorage.setItem("Auth", Auth);
+    setToken(passedToken);
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem("Auth");
+    localStorage.removeItem("token");
+    setToken("");
+  };
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col" data-theme="cupcake">
       <Router>
-        <NavBar updateCart={updateCart} />
+        <NavBar token={token} handleLogout={handleLogout} updateCart={updateCart} />
         <Routes>
           {/* PUBLIC ROUTES */}
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/login" element={<LoginPage updateToken={updateToken} />} />
           <Route path="/password/forgot" element={<ForgotPassword />} />
           <Route path="/password/reset" element={<ResetPassword />} />
           <Route path="/products" element={<Products />} />
@@ -63,8 +85,6 @@ function App() {
           <Route path="/user-account" element={<UserAccount />} />
 
 
-          <Route path="/cart" element={<Cart />} />
-          
         </Routes>
         <Footer />
       </Router>

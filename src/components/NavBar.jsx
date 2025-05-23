@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-
-import { NavLink } from "react-router-dom"; // Import NavLink
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import Logo from "../assets/images/mmc-inflatable-logo.png";
 
-export default function NavBar({ updateCart }) {
+export default function NavBar({ token, handleLogout, updateCart }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  // const navigate = useNavigate();
+  const location = useLocation();
+  const navigate = useNavigate();
   const isLoggedIn = localStorage.getItem("Auth") === "true";
+  // const [accountLink, setAccountLink] = useState("/login");
+  const [role, setRole] = useState("");
 
   const handleLogout = () => {
     localStorage.removeItem("Auth");
@@ -20,7 +21,6 @@ export default function NavBar({ updateCart }) {
   const API = `http://localhost:8080/api/cart`;
   const token = localStorage.getItem("token");
 
-  const navigate = useNavigate();
 
   //Get User Info and Number of items in cart
   useEffect(() => {
@@ -66,6 +66,22 @@ export default function NavBar({ updateCart }) {
     fetchCartInfo();
   }, [updateCart]);
 
+  // Hide Logout on these pages
+  const hideAuthNav =
+    location.pathname === "/login" ||
+    location.pathname === "/signup" ||
+    location.pathname === "/password/forgot" ||
+    location.pathname.startsWith("/password/reset");
+
+
+
+  // Decide Account link destination
+  useEffect(() => {
+
+    if (localStorage.getItem("Auth")) {
+      setRole(localStorage.getItem("Auth"));
+    } else { setRole(""); }
+  }, [token]);
   return (
     <header className="bg-secondary shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -115,11 +131,13 @@ export default function NavBar({ updateCart }) {
               About Us
             </NavLink>
             <NavLink
-              to={
-                localStorage.getItem("Auth") === "true"
-                  ? "/admin-management"
-                  : "/my-account"
-              }
+              to={role ? "/admin-management" : token ? "/my-account" : "/login"}
+              // onClick={e => {
+              //   // if (!isLoggedIn) {
+              //   //   e.preventDefault();
+              //   //   navigate("/login");
+              //   // }
+              // }}
               className={({ isActive }) =>
                 isActive
                   ? "block px-3 py-2 text-base font-medium text-gray-600 bg-gray-50 rounded-md"
@@ -128,24 +146,18 @@ export default function NavBar({ updateCart }) {
             >
               Account
             </NavLink>
-            {/* Login/Logout NavLink */}
-            {isLoggedIn ? (
+            {/* Only show Logout when signed in and not on auth pages */}
+            {isLoggedIn && !hideAuthNav && (
               <NavLink
                 to="#"
                 onClick={(e) => {
                   e.preventDefault();
                   handleLogout();
+                  navigate("/");
                 }}
                 className="block px-3 py-2 text-base font-medium text-red-600 hover:bg-gray-50 hover:text-red-800 rounded-md"
               >
                 Logout
-              </NavLink>
-            ) : (
-              <NavLink
-                to="/login"
-                className="block px-3 py-2 text-base font-medium text-primary hover:bg-gray-50 hover:text-primary-700 rounded-md"
-              >
-                Login
               </NavLink>
             )}
           </nav>
@@ -211,11 +223,8 @@ export default function NavBar({ updateCart }) {
               About Us
             </NavLink>
             <NavLink
-              to={
-                localStorage.getItem("Auth") === "true"
-                  ? "/admin-management"
-                  : "/my-account"
-              }
+              to={role ? "/admin-management" : token ? "/my-account" : "/login"}
+
               className={({ isActive }) =>
                 isActive
                   ? "block px-3 py-2 text-base font-medium text-gray-600 bg-gray-50 rounded-md"
@@ -224,26 +233,19 @@ export default function NavBar({ updateCart }) {
             >
               Account
             </NavLink>
-            {/* Login/Logout NavLink for Mobile */}
-            {isLoggedIn ? (
+            {/* Only show Logout when signed in and not on auth pages */}
+            {isLoggedIn && !hideAuthNav && (
               <NavLink
                 to="#"
                 onClick={(e) => {
                   e.preventDefault();
                   handleLogout();
                   setIsMenuOpen(false);
+                  navigate("/");
                 }}
                 className="block px-3 py-2 text-base font-medium text-red-600 hover:bg-gray-50 hover:text-red-800 rounded-md"
               >
                 Logout
-              </NavLink>
-            ) : (
-              <NavLink
-                to="/login"
-                onClick={() => setIsMenuOpen(false)}
-                className="block px-3 py-2 text-base font-medium text-primary hover:bg-gray-50 hover:text-primary-700 rounded-md"
-              >
-                Login
               </NavLink>
             )}
           </div>
