@@ -41,7 +41,7 @@ const ProductDetails = () => {
 
       const data = await response.json();
       console.log("Added to cart:", data);
-      navigate("/Cart"); // Redirect to the cart page after adding
+      navigate(`/cart`); // Redirect to the cart page after adding
     } catch (error) {
       console.error("Error adding to cart:", error);
     }

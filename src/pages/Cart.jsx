@@ -81,10 +81,8 @@ export default function Cart({ setUpdateCart }) {
                       },
                     ]
                   : [],
-                totalPrice: itemsList.reduce(
-                  (sum, item) => sum + item.price * item.quantity,
-                  0
-                ),
+                totalPrice: item.price * item.quantity,
+
                 rentalDate: rentalDate,
                 deliveryAddress: "TBD",
                 eventNotes: "",
