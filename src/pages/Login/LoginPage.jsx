@@ -77,10 +77,10 @@ const LoginPage = ({ updateToken }) => {
             } else {
                 alert("Signup successful! Please log in.");
                 setIsLogin(true); // Switch to login form after signup
+                navigate("/");
             }
 
             // updateToken(data.Token, "");
-            navigate("/");
         } catch (err) {
             console.log(err);
             setErrorMsg(err.message);

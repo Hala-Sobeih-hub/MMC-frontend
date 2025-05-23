@@ -5,8 +5,7 @@ import "react-day-picker/dist/style.css";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const ProductDetails = () => {
-  const { id } = useParams();
-  const [product, setProduct] = useState(null);
+  const [product, setProduct] = useState();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedDate, setSelectedDate] = useState(); // State to
@@ -41,7 +40,9 @@ const ProductDetails = () => {
 
       const data = await response.json();
       console.log("Added to cart:", data);
-      navigate(`/cart`); // Redirect to the cart page after adding
+      navigate(
+        `/cart?productId=${product._id}&quantity=${product.quantity}&price=${product.price}&rentalDate=${selectedDate}`
+      ); // Redirect to the cart page after adding
     } catch (error) {
       console.error("Error adding to cart:", error);
     }
@@ -55,31 +56,6 @@ const ProductDetails = () => {
   };
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:8080/api/products/${id}`
-        );
-        if (!response.ok) throw new Error("Network response was not ok");
-        const data = await response.json();
-        setProduct(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProduct();
-  }, [id]);
-  console.log({
-    productId: product._id,
-    name: product.name,
-    date: selectedDate,
-    quantity: quantity,
-  });
-
-  useEffect(() => {
-    setProductId(window.location.pathname.split("/")[2]);
     const fetchProduct = async () => {
       try {
         const response = await fetch(
@@ -97,7 +73,7 @@ const ProductDetails = () => {
       }
     };
     fetchProduct();
-  }, [productId]);
+  }, []);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
