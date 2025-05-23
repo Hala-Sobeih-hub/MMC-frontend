@@ -17,39 +17,34 @@ const ProductDetails = () => {
 
   const handleBook = async () => {
     // Handle booking logic here
-    // try {
-    //     const token = localStorage.getItem("token");
-    //     if (!token) {
-    //         //save the current location to redirect after login
-    //         // navigate("/login", { state: { from: location.pathname } });
-    //         return;
-    //     }
-    //     const response = await fetch('http://localhost:8080/api/cart', {
-    //         method: 'POST',
-    //         headers: { 'Content-Type': 'application/json' },
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        //save the current location to redirect after login
+        navigate("/login", { state: { from: location.pathname } });
+        return;
+      }
+      const response = await fetch("http://localhost:8080/api/cart", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
 
-    //         body: JSON.stringify({ productId: product._id,
-    //             name: product.name,
-    //             date: selectedDate,
-    //             quantity: quantity,
-    //          }),
-    //     });
+        body: JSON.stringify({
+          productId: product._id,
+          name: product.name,
+          date: selectedDate,
+          quantity: quantity,
+        }),
+      });
 
-    // const data = await response.json();
-    //console.log("Added to cart:", data);
-    console.log(
-      `/cart?productId=${id}&quantity=${quantity}&rentalDate=${selectedDate.toLocaleDateString(
-        "en-US"
-      )}`
-    );
-    navigate(
-      `/cart?productId=${id}&quantity=${quantity}&rentalDate=${selectedDate.toLocaleDateString(
-        "en-US"
-      )}`
-    ); // Redirect to the cart page after adding
-    // } catch (error) {
-    //     console.error("Error adding to cart:", error);
-    // }
+      const data = await response.json();
+      console.log("Added to cart:", data);
+      navigate("/Cart"); // Redirect to the cart page after adding
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    }
 
     console.log({
       productId: product._id,
@@ -76,6 +71,33 @@ const ProductDetails = () => {
     };
     fetchProduct();
   }, [id]);
+  console.log({
+    productId: product._id,
+    name: product.name,
+    date: selectedDate,
+    quantity: quantity,
+  });
+
+  useEffect(() => {
+    setProductId(window.location.pathname.split("/")[2]);
+    const fetchProduct = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/products/${
+            window.location.pathname.split("/")[2]
+          }`
+        );
+        if (!response.ok) throw new Error("Network response was not ok");
+        const data = await response.json();
+        setProduct(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [productId]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;

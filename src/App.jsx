@@ -22,6 +22,10 @@ import MyPreviousBookings from "./pages/MyPreviousBookings.jsx";
 
 import AdminManagement from "./pages/Admin/AdminManagement.jsx";
 import UserAccount from "./pages/UserAccount.jsx";
+import Products from "./pages/products.jsx";
+import Testimonials from "./components/testimonialCarousel.jsx";
+import ProductDetails from "./pages/productDetails.jsx";
+import Cart from "./components/Cart.jsx";
 
 function App() {
   const [updateCart, setUpdateCart] = useState(false);
@@ -34,6 +38,8 @@ function App() {
           {/* PUBLIC ROUTES */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/password/forgot" element={<ForgotPassword />} />
+          <Route path="/password/reset" element={<ResetPassword />} />
           <Route path="/products" element={<Products />} />
           <Route path="/testimonials" element={<Testimonials />} />
           <Route path="/products/:id" element={<ProductDetails />} />
@@ -55,6 +61,10 @@ function App() {
           <Route path="/invite-admin" element={<AdminInvitation />} />
           <Route path="/admin-management" element={<AdminManagement />} />
           <Route path="/user-account" element={<UserAccount />} />
+
+
+          <Route path="/cart" element={<Cart />} />
+          
         </Routes>
         <Footer />
       </Router>
