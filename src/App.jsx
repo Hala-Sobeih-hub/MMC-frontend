@@ -1,5 +1,5 @@
 // import { useEffect, useState } from 'react';
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import "./App.css";
@@ -17,14 +17,36 @@ import AdminManagement from './pages/Admin/AdminManagement.jsx';
 import UserAccount from "./pages/UserAccount.jsx";
 
 function App() {
+
+  const [token, setToken] = useState("");
+
+  const updateToken = (passedToken, Auth) => {
+    localStorage.setItem("token", passedToken);
+    localStorage.setItem("Auth", Auth);
+    setToken(passedToken);
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem("Auth");
+    localStorage.removeItem("token");
+    setToken("");
+  };
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col" data-theme="cupcake">
       <Router>
-        <NavBar />
+        <NavBar token={token} handleLogout={handleLogout} />
         <Routes>
           {/* PUBLIC ROUTES */}
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/login" element={<LoginPage updateToken={updateToken} />} />
           <Route path="/password/forgot" element={<ForgotPassword />} />
           <Route path="/password/reset/:token" element={<ResetPassword />} />
           {/* Protected Routes */}
