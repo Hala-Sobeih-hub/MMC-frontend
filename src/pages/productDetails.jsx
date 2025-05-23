@@ -5,8 +5,7 @@ import "react-day-picker/dist/style.css";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const ProductDetails = () => {
-  const { id } = useParams();
-  const [product, setProduct] = useState(null);
+  const [product, setProduct] = useState();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedDate, setSelectedDate] = useState(); // State to
@@ -21,7 +20,7 @@ const ProductDetails = () => {
       const token = localStorage.getItem("token");
       if (!token) {
         //save the current location to redirect after login
-        navigate("/login", { state: { from: location.pathname } });
+        navigate("/login", { state: { from: location.pathname + location.search } });
         return;
       }
       const response = await fetch("http://localhost:8080/api/cart", {
@@ -41,7 +40,7 @@ const ProductDetails = () => {
 
       const data = await response.json();
       console.log("Added to cart:", data);
-      navigate("/Cart"); // Redirect to the cart page after adding
+      navigate(`/cart?productId=${product._id}&quantity=${product.quantity}&price=${product.price}&rentalDate=${selectedDate}`); // Redirect to the cart page after adding
     } catch (error) {
       console.error("Error adding to cart:", error);
     }
@@ -54,37 +53,13 @@ const ProductDetails = () => {
     });
   };
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:8080/api/products/${id}`
-        );
-        if (!response.ok) throw new Error("Network response was not ok");
-        const data = await response.json();
-        setProduct(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProduct();
-  }, [id]);
-  console.log({
-    productId: product._id,
-    name: product.name,
-    date: selectedDate,
-    quantity: quantity,
-  });
+
 
   useEffect(() => {
-    setProductId(window.location.pathname.split("/")[2]);
     const fetchProduct = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/products/${
-            window.location.pathname.split("/")[2]
+          `http://localhost:8080/api/products/${window.location.pathname.split("/")[2]
           }`
         );
         if (!response.ok) throw new Error("Network response was not ok");
@@ -97,7 +72,7 @@ const ProductDetails = () => {
       }
     };
     fetchProduct();
-  }, [productId]);
+  }, []);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -141,7 +116,7 @@ const ProductDetails = () => {
               Selected Date: {selectedDate.toLocaleDateString()}
             </span>
             {/* Add your booking button here */}
-            <button className="btn btn-primary ml-4" onClick={handleBook}>
+            <button className="btn btn-accent text-white ml-4" onClick={handleBook}>
               Book This Date
             </button>
           </div>
