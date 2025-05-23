@@ -20,6 +20,7 @@ import Testimonials from "./components/testimonialCarousel.jsx";
 import ProductDetails from "./pages/productDetails.jsx";
 import MyPreviousBookings from "./pages/MyPreviousBookings.jsx";
 import AdminManagement from "./pages/Admin/AdminManagement.jsx";
+
 function App() {
   const [updateCart, setUpdateCart] = useState(false);
 
@@ -49,11 +50,6 @@ function App() {
   return (
     <div className="min-h-screen flex flex-col" data-theme="cupcake">
       <Router>
-        <NavBar
-          token={token}
-          handleLogout={handleLogout}
-          updateCart={updateCart}
-        />
         <NavBar
           token={token}
           handleLogout={handleLogout}
@@ -89,7 +85,6 @@ function App() {
 
           <Route path="/invite-admin" element={<AdminInvitation />} />
           <Route path="/admin-management" element={<AdminManagement />} />
-          <Route path="/user-account" element={<UserAccount />} />
           {/* <Route path="/user-account" element={<UserAccount />} /> */}
         </Routes>
         <Footer />

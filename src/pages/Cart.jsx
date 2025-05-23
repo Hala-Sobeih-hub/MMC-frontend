@@ -3,38 +3,68 @@ import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 export default function Cart({ setUpdateCart }) {
-  const [cartItems, setCartItems] = useState([]);
-  const [newCartItem, setNewCartItem] = useState(null);
-  const [cartId, setCartId] = useState(null);
-  const [userInfo, setUserInfo] = useState({});
+  const [cartItems, setCartItems] = useState([]); //All cart items are formatted for easier display
+  const [newCartItem, setNewCartItem] = useState(null); // New cart item to be added
+  const [cartId, setCartId] = useState(null); //
+  const [userInfo, setUserInfo] = useState({}); // User info from token
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const [searchParams] = useSearchParams();
   const newProductId = searchParams.get("productId");
-  const newQuantity = parseInt(searchParams.get("quantity"));
+  const newQuantity = parseInt(searchParams.get("quantity") || 1);
   const newRentalDate = searchParams.get("rentalDate");
   const newPrice = parseFloat(searchParams.get("price"));
   const [rentalDate, setRentalDate] = useState(newRentalDate || ""); // Initialize rentalDate state
-  const [itemsList, setItemsList] = useState([]);
+  // const [itemsList, setItemsList] = useState([]);
 
   console.log("Date:", newRentalDate);
+
+  const navigate = useNavigate();
 
   const API = `http://localhost:8080/api`;
   const token = localStorage.getItem("token");
 
-  const navigate = useNavigate();
-
   // Handle checkout button click
   // This function will redirect to the booking page
   const handleCheckout = () => {
-    navigate("/booking"); // or add query string or state if needed
+    navigate("/booking");
   };
 
+  // Fetch user info from server using token
+  // This function will be called when the component mounts
   useEffect(() => {
-    //fetch the product details from the backend
+    const fetchUserInfo = async () => {
+      try {
+        const res = await fetch(`${API}/users/my-profile`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!res.ok) throw new Error("Failed to fetch user info");
+        const data = await res.json();
+        console.log("User Info:", data);
+        console.log("User ID:", data._id);
+        setUserInfo(data);
+      } catch (err) {
+        console.error("User Info Error:", err);
+        setError("Failed to load user info.");
+      }
+    };
+
+    if (token) {
+      fetchUserInfo();
+    }
+  }, [token]);
+
+  useEffect(() => {
+    //When the component mounts, check if there is a new productId in the URL
+    //If there is, fetch the product details and add it to the cart
+    //If there is no productId, just fetch the cart
     const fetchProduct = async () => {
       try {
+        console.log("Fetching product with ID:", newProductId);
+        console.log(`Product Link: ${API}/products/${newProductId}`);
         const res = await fetch(`${API}/products/${newProductId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -42,8 +72,30 @@ export default function Cart({ setUpdateCart }) {
         if (!res.ok) throw new Error("Failed to fetch product");
 
         const data = await res.json();
-        console.log("Product Response:", data.result);
-        setNewCartItem(data.result);
+        console.log("Product Response from cart:", data);
+        setNewCartItem(data); // the new product to be added with all details
+        setCartItems((prevItems) => [
+          // Add new product to cart items
+          ...prevItems,
+          {
+            name: data.name,
+            imageUrl: data.imageUrl,
+            price: data.price,
+            quantity: newQuantity || 1,
+            rentalDate: rentalDate,
+            _id: data._id,
+          },
+        ]);
+        setUpdateCart((prev) => !prev); // Trigger cart update
+        localStorage.setItem(
+          "cartItemCount",
+          (parseInt(localStorage.getItem("cartItemCount")) || 0) + 1
+        ); // Update local storage count
+        console.log(
+          "Local Storage from Cart.jsx 1: ",
+          localStorage.getItem("cartItemCount")
+        );
+        setLoading(false);
       } catch (err) {
         console.error("Product Error:", err);
         setError("Failed to load product.");
@@ -54,128 +106,186 @@ export default function Cart({ setUpdateCart }) {
     }
   }, [newProductId, token]);
 
+  // useEffect(() => {
+  //   if (userInfo._id && (newProductId ? newCartItem : true)) {
+  //     fetchCart();
+  //   }
+  // }, [userInfo, newCartItem]);
+
+  // Create a new cart if it doesn't exist
+  const createNewCart = async () => {
+    try {
+      console.log("Item to be added to cart", newCartItem);
+      console.log("User ID (from Post cart):", userInfo._id);
+      const newCartRes = await fetch(`${API}/cart/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userId: userInfo._id,
+          itemsList: newProductId
+            ? [
+                {
+                  productId: newCartItem._id,
+                  // quantity: newQuantity || 1,
+                  quantity: 1,
+                  price: newCartItem.price, // price is ignored by backend populate
+                },
+              ]
+            : [],
+          totalPrice: newCartItem.price * 1, //newQuantity,
+
+          rentalDate: rentalDate,
+          deliveryAddress: "TBD",
+          eventNotes: "",
+        }),
+      });
+
+      if (!newCartItem || !newCartItem.price || !newQuantity) {
+        console.log("Missing data to calculate totalPrice", {
+          newCartItem,
+          newQuantity,
+        });
+      }
+
+      console.log("Cart failed to add", {
+        userId: userInfo._id,
+        itemsList: newProductId
+          ? [
+              {
+                productId: newCartItem._id,
+                quantity: 1,
+                price: newCartItem.price, // price is ignored by backend populate
+              },
+            ]
+          : [],
+        totalPrice: newCartItem.price * 1,
+
+        rentalDate: rentalDate,
+        deliveryAddress: "TBD",
+        eventNotes: "",
+      });
+      if (!newCartRes.ok) throw new Error("Failed to create cart");
+      console.log("New Cart Response:", newCartRes);
+      const data = await newCartRes.json();
+      console.log("New cart created:", data);
+      setCartId(data.result._id);
+
+      setUserInfo(data.result.userId);
+      setCartItems(data.result.itemsList.map(formatItem));
+      localStorage.setItem(
+        "cartItemCount",
+        data.result.itemsList.reduce((sum, item) => sum + item.quantity, 0)
+      );
+      console.log(
+        "Local Storage from Cart.jsx 1: ",
+        localStorage.getItem("cartItemCount")
+      );
+    } catch (err) {
+      console.error("Create Cart Error:", err);
+      setError("Failed to create cart.");
+    }
+  };
+
+  /*
+    If the user visits /cart?productId=..., wait for:
+      1. userInfo._id
+      2. newCartItem to be fetched
+
+    If the user just visits /cart, wait only for:
+      1. userInfo._id
+  */
+
   useEffect(() => {
+    // Fetch cart data from server
     const fetchCart = async () => {
       try {
+        // If token is not present, there is no cart
+        if (!token || !userInfo._id) return;
+
         //if token exists, fetch the cart
-        if (token) {
-          const res = await fetch(`${API}/cart/user/`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
 
-          console.log("Cart Response:", res);
+        const res = await fetch(`${API}/cart/user/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-          // If the cart doesn't exist, create a new one
-          if (!res.ok) {
-            const newCartRes = await fetch(`${API}/cart/`, {
-              method: "POST",
+        console.log("Cart Response:", res);
+
+        // If the cart doesn't exist, create a new cart with only one new product
+        if (!res.ok) {
+          createNewCart();
+        } else {
+          // If the cart exists, read the cart data
+          const cartData = await res.json();
+          const cart = cartData.result;
+          setCartId(cart._id);
+          setUserInfo(cart.userId);
+
+          const updatedItems = [...cart.itemsList];
+
+          // Check if product is already in cart
+          const alreadyInCart = updatedItems.some(
+            //(item) => item.productId._id === newProductId
+            (item) => item._id === newProductId
+          );
+
+          if (
+            newProductId &&
+            newQuantity &&
+            !alreadyInCart /*&& newRentalDate*/
+          ) {
+            updatedItems.push({
+              productId: newProductId,
+              quantity: newQuantity,
+              price: newCartItem.price,
+              rentalDate: rentalDate,
+            });
+
+            const total = updatedItems.reduce(
+              (sum, item) => sum + item.price * item.quantity,
+              0
+            );
+            // Save updated cart
+            await fetch(`${API}/cart/${cart._id}`, {
+              method: "PUT",
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
               },
               body: JSON.stringify({
-                itemsList: newProductId
-                  ? [
-                      {
-                        productId: newProductId,
-                        quantity: newQuantity || 1,
-                        price: 0, // price is ignored by backend populate
-                      },
-                    ]
-                  : [],
-                totalPrice: newPrice * newQuantity,
-
+                itemsList: updatedItems.map((item) => ({
+                  // productId: item.productId._id || item.productId,
+                  productId: item._id || item.productId,
+                  quantity: item.quantity,
+                  price: item.price,
+                  rentalDate: rentalDate,
+                })),
+                totalPrice: total,
                 rentalDate: rentalDate,
-                deliveryAddress: "TBD",
-                eventNotes: "",
+
+                deliveryAddress: cart.deliveryAddress || "TBD",
+                eventNotes: cart.eventNotes || "",
               }),
             });
-            const data = await newCartRes.json();
-            console.log("New cart created:", data.result);
-            setCartId(data.result._id);
-
-            setUserInfo(data.result.userId);
-            setCartItems(data.result.itemsList.map(formatItem));
-            localStorage.setItem(
-              "cartItemCount",
-              data.result.itemsList.reduce(
-                (sum, item) => sum + item.quantity,
-                0
-              )
-            );
-            console.log(
-              "Local Storage from Cart.jsx 1: ",
-              localStorage.getItem("cartItemCount")
-            );
-          } else {
-            // If the cart exists, read the cart data
-            const cartData = await res.json();
-            const cart = cartData.result;
-            setCartId(cart._id);
-            setUserInfo(cart.userId);
-
-            const updatedItems = [...cart.itemsList];
-
-            // Check if product is already in cart
-            const alreadyInCart = updatedItems.some(
-              (item) => item.productId._id === newProductId
-            );
-
-            if (
-              newProductId &&
-              newQuantity &&
-              newRentalDate &&
-              !alreadyInCart
-            ) {
-              updatedItems.push({
-                productId: { _id: newProductId }, // placeholder
-                quantity: newQuantity,
-                price: 0,
-                rentalDate: rentalDate,
-              });
-
-              const total = updatedItems.reduce(
-                (sum, item) => sum + item.price * item.quantity,
-                0
-              );
-              // Save updated cart
-              await fetch(`${API}/cart/${cart._id}`, {
-                method: "PUT",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                  itemsList: updatedItems.map((item) => ({
-                    productId: item.productId._id || item.productId,
-                    quantity: item.quantity,
-                    price: item.price,
-                    rentalDate: rentalDate,
-                  })),
-                  totalPrice: total,
-                  rentalDate: rentalDate,
-                  deliveryAddress: cart.deliveryAddress || "TBD",
-                  eventNotes: cart.eventNotes || "",
-                }),
-              });
-            }
-
-            // Use fully populated items
-            setCartItems(cart.itemsList.map(formatItem));
-
-            localStorage.setItem(
-              "cartItemCount",
-              cart.itemsList.reduce((sum, item) => sum + item.quantity, 0)
-            );
-
-            console.log(
-              "Local Storage from Cart.jsx 2: ",
-              localStorage.getItem("cartItemCount")
-            );
           }
 
-          setLoading(false);
+          // Use fully populated items
+          setCartItems(cart.itemsList.map(formatItem));
+
+          localStorage.setItem(
+            "cartItemCount",
+            cart.itemsList.reduce((sum, item) => sum + item.quantity, 0)
+          );
+
+          console.log(
+            "Local Storage from Cart.jsx 2: ",
+            localStorage.getItem("cartItemCount")
+          );
         }
+
+        setLoading(false);
       } catch (err) {
         console.error("Cart Error:", err);
         setError("Failed to load cart.");
@@ -183,10 +293,13 @@ export default function Cart({ setUpdateCart }) {
       }
     };
 
-    fetchCart();
+    // Fallback logic:
+    if (userInfo._id && (newProductId ? newCartItem : true)) {
+      fetchCart();
+    }
     // Only run once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [userInfo, newCartItem]);
 
   const formatItem = (item) => ({
     name: item.productId.name,
