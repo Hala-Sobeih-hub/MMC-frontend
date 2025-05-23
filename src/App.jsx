@@ -4,12 +4,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import "./App.css";
  
-//Public Routes
-import Home from "./pages/Home.jsx";
-import LoginPage from './pages/Login/LoginPage.jsx';
-import Products from "./pages/products.jsx";
-import Testimonials from "./pages/testimonials.jsx";
-import ProductDetails from "./pages/productDetails.jsx";
 
 import NavBar from "./components/NavBar.jsx";
 import Footer from "./components/Footer.jsx";

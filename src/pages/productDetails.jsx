@@ -83,7 +83,7 @@ const ProductDetails = () => {
     if (!product) return <div>Product not found.</div>;
 
     return (
-        <div className="bg-secondary container mx-auto px-4 py-8">
+        <div className="bg-primary container mx-auto px-4 py-8">
             <img
                 src={product.imageUrl}
                 alt={product.name}
@@ -94,7 +94,7 @@ const ProductDetails = () => {
             <p className="text-primary-600 mb-4">{product.description}</p>
             <div className="mt-2 flex justify-center">
 
-                <div className="bg-primary rounded-xl p-4 shadow">
+                <div className="bg-secondary rounded-xl p-4 shadow">
                     <DayPicker
                         selected={selectedDate} // Pass the selected date to the DayPicker
                         onDayClick={(day) => setSelectedDate(day)} // Update the selected date on click
@@ -104,7 +104,7 @@ const ProductDetails = () => {
                             available: product.availableDate ? [new Date(product.availableDate)] : [],
                         }}
                         modifiersStyles={{
-                            booked: { textDecoration: "line-through", backgroundColor: "#f67a48" },
+                            booked: { textDecoration: "line-through", backgroundColor: "#f67a48", color: "white" },
                             available: { backgroundColor: "#32b0a9", color: "white" },
                         }}
                     />
@@ -116,7 +116,7 @@ const ProductDetails = () => {
                             Selected Date: {selectedDate.toLocaleDateString()}
                         </span>
                         {/* Add your booking button here */}
-                        <button className="btn btn-primary ml-4" onClick={() => {
+                        <button className="btn btn-accent text-white ml-4" onClick={() => {
                             navigate("/cart?quanitity=5");
 
                         }
