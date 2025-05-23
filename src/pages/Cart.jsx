@@ -9,6 +9,7 @@ export default function Cart({ setUpdateCart }) {
   const [userInfo, setUserInfo] = useState({}); // User info from token
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  //const [cartFetched, setCartFetched] = useState(true); // Flag to check if cart is fetched
 
   const [searchParams] = useSearchParams();
   const newProductId = searchParams.get("productId");
@@ -173,7 +174,7 @@ export default function Cart({ setUpdateCart }) {
       console.log("New cart created:", data);
       setCartId(data.result._id);
 
-      setUserInfo(data.result.userId);
+      //setUserInfo(data.result.userId);
       setCartItems(data.result.itemsList.map(formatItem));
       localStorage.setItem(
         "cartItemCount",
@@ -220,11 +221,14 @@ export default function Cart({ setUpdateCart }) {
           // If the cart exists, read the cart data
           const cartData = await res.json();
           const cart = cartData.result;
+
+          console.log("Cart Data:", cart);
           setCartId(cart._id);
-          setUserInfo(cart.userId);
+          //setUserInfo(cart.userId);
 
           const updatedItems = [...cart.itemsList];
 
+          console.log("Updated Items:", updatedItems);
           // Check if product is already in cart
           const alreadyInCart = updatedItems.some(
             //(item) => item.productId._id === newProductId
@@ -295,7 +299,10 @@ export default function Cart({ setUpdateCart }) {
 
     // Fallback logic:
     if (userInfo._id && (newProductId ? newCartItem : true)) {
+      //&& !cartFetched) {
+      console.log("Adding new product to existing cart...");
       fetchCart();
+      //setCartFetched(true);
     }
     // Only run once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
