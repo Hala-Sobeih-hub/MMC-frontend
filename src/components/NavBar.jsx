@@ -3,7 +3,7 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import Logo from "../assets/images/mmc-inflatable-logo.png";
 
-export default function NavBar({ token, handleLogout }) {
+export default function NavBar({ token, handleLogout, updateCart }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -11,6 +11,60 @@ export default function NavBar({ token, handleLogout }) {
   // const [accountLink, setAccountLink] = useState("/login");
   const [role, setRole] = useState("");
 
+  const handleLogout = () => {
+    localStorage.removeItem("Auth");
+    navigate("/login");
+  };
+  const [cartItems, setCartItems] = useState(0);
+  // const [userInfo, setUserInfo] = useState({});
+
+  const API = `http://localhost:8080/api/cart`;
+  const token = localStorage.getItem("token");
+
+
+  //Get User Info and Number of items in cart
+  useEffect(() => {
+    console.log("fetching cart info");
+
+    const storedCount = parseInt(localStorage.getItem("cartItemCount")) || 0;
+    setCartItems(storedCount); // quick load
+
+    const fetchCartInfo = async () => {
+      try {
+        //if token is not present, set cartItems to 0
+        if (!token) {
+          setCartItems(0);
+          return;
+        } else {
+          // else if token exists, fetch the cart
+          const res = await fetch(`${API}/user/`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          //if there is no cart, set cartItems to 0
+          if (!res.ok) {
+            setCartItems(0);
+            return;
+          } else {
+            //else if there is a cart, get the number of items in the cart
+            const data = await res.json();
+            console.log("Cart Response:", data.result);
+            //setCartItems(data.result.itemsList.length);
+            const itemCount = data.result.itemsList.reduce(
+              (sum, item) => sum + item.quantity,
+              0
+            );
+            setCartItems(itemCount);
+            localStorage.setItem("cartItemCount", itemCount); // keep in sync
+            //setUserInfo(data.result.userId);
+            //console.log("User Info:", data.result.userId);
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchCartInfo();
+  }, [updateCart]);
 
   // Hide Logout on these pages
   const hideAuthNav =
@@ -96,7 +150,7 @@ export default function NavBar({ token, handleLogout }) {
             {isLoggedIn && !hideAuthNav && (
               <NavLink
                 to="#"
-                onClick={e => {
+                onClick={(e) => {
                   e.preventDefault();
                   handleLogout();
                   navigate("/");
@@ -108,9 +162,9 @@ export default function NavBar({ token, handleLogout }) {
             )}
           </nav>
 
-          {/* Right Side Items */}
+          {/* Right side items */}
           <div className="flex items-center">
-            {/* Cart Button */}
+            {/* Cart button */}
             <div className="relative">
               <button
                 className="p-2 rounded-full hover:bg-gray-100 text-gray-600"
@@ -118,7 +172,7 @@ export default function NavBar({ token, handleLogout }) {
               >
                 <Icon icon="lucide:shopping-cart" width={20} height={20} />
                 <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  5
+                  {cartItems} {/* Display number of items in cart */}
                 </span>
               </button>
             </div>
@@ -183,7 +237,7 @@ export default function NavBar({ token, handleLogout }) {
             {isLoggedIn && !hideAuthNav && (
               <NavLink
                 to="#"
-                onClick={e => {
+                onClick={(e) => {
                   e.preventDefault();
                   handleLogout();
                   setIsMenuOpen(false);
