@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 // import bounceImage3 from "../../assets/images/bounce-image-3.jpg";
 // import Logo from "../../assets/images/mmc-inflatable-logo.png";
 
-const LoginPage = () => {
+const LoginPage = ({ updateToken }) => {
     const [isLogin, setIsLogin] = useState(true);
     // const [isSignup, setIsSignup] = useState(false);
     const [firstName, setFirstName] = useState("");
@@ -68,8 +68,9 @@ const LoginPage = () => {
             console.log("Data:", data);
 
             if (isLogin) {
-                localStorage.setItem("token", data.Token);
-                localStorage.setItem("Auth", data.User.isAdmin);
+                // localStorage.setItem("token", data.Token);
+                // localStorage.setItem("Auth", data.User.isAdmin);
+                updateToken(data.Token, data.User.isAdmin);
                 navigate("/");
 
 
@@ -78,7 +79,7 @@ const LoginPage = () => {
                 setIsLogin(true); // Switch to login form after signup
             }
 
-            localStorage.setItem("token", data.Token);
+            // updateToken(data.Token, "");
             navigate("/");
         } catch (err) {
             console.log(err);
