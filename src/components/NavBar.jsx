@@ -10,13 +10,10 @@ export default function NavBar({ token, handleLogout, updateCart, isAdmin }) {
   // const [accountLink, setAccountLink] = useState("/login");
   const [role, setRole] = useState("");
 
-
   const [cartItems, setCartItems] = useState(0);
   // const [userInfo, setUserInfo] = useState({});
 
   const API = `http://localhost:8080/api/cart`;
-
-
 
   //Get User Info and Number of items in cart
   useEffect(() => {
@@ -69,11 +66,9 @@ export default function NavBar({ token, handleLogout, updateCart, isAdmin }) {
     location.pathname === "/password/forgot" ||
     location.pathname.startsWith("/password/reset");
 
-
-
   // Decide Account link destination
   useEffect(() => {
-    console.log(isAdmin);
+    console.log("NavBar.jsx: isAdmin =", isAdmin);
     // if (localStorage.getItem("Auth")) {
     //   setRole(localStorage.getItem("Auth"));
     // } else { setRole(""); }
@@ -126,8 +121,10 @@ export default function NavBar({ token, handleLogout, updateCart, isAdmin }) {
             >
               About Us
             </NavLink>
-            <NavLink to={isAdmin ? "/admin-management" : token ? "/my-account" : "/login"}
-
+            <NavLink
+              to={
+                isAdmin ? "/admin-management" : token ? "/my-account" : "/login"
+              }
               className={({ isActive }) =>
                 isActive
                   ? "block px-3 py-2 text-base font-medium text-gray-600 bg-gray-50 rounded-md"
@@ -213,8 +210,9 @@ export default function NavBar({ token, handleLogout, updateCart, isAdmin }) {
               About Us
             </NavLink>
             <NavLink
-              to={isAdmin ? "/admin-management" : token ? "/my-account" : "/login"}
-
+              to={
+                isAdmin ? "/admin-management" : token ? "/my-account" : "/login"
+              }
               className={({ isActive }) =>
                 isActive
                   ? "block px-3 py-2 text-base font-medium text-gray-600 bg-gray-50 rounded-md"

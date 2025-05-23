@@ -50,7 +50,7 @@ export default function Footer() {
           ></iframe>
         </div>
 
-        {console.log("Footer is rendering!")}
+        {/* {console.log("Footer is rendering!")} */}
 
         {/* Inquiry Button */}
         <div className="flex flex-col items-center sm:items-start justify-center">
