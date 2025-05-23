@@ -82,7 +82,7 @@ export default function Cart({ setUpdateCart }) {
             name: data.name,
             imageUrl: data.imageUrl,
             price: data.price,
-            quantity: newQuantity || 1,
+            quantity: 1, //newQuantity || 1,
             rentalDate: rentalDate,
             _id: data._id,
           },
@@ -151,7 +151,7 @@ export default function Cart({ setUpdateCart }) {
         });
       }
 
-      console.log("Cart failed to add", {
+      console.log("Cart Item to add", {
         userId: userInfo._id,
         itemsList: newProductId
           ? [
@@ -175,7 +175,7 @@ export default function Cart({ setUpdateCart }) {
       setCartId(data.result._id);
 
       //setUserInfo(data.result.userId);
-      setCartItems(data.result.itemsList.map(formatItem));
+      setCartItems(newCartItem);
       localStorage.setItem(
         "cartItemCount",
         data.result.itemsList.reduce((sum, item) => sum + item.quantity, 0)
@@ -218,34 +218,34 @@ export default function Cart({ setUpdateCart }) {
         if (!res.ok) {
           createNewCart();
         } else {
+          console.log("Cart exists, fetching data...");
           // If the cart exists, read the cart data
           const cartData = await res.json();
           const cart = cartData.result;
 
           console.log("Cart Data:", cart);
           setCartId(cart._id);
+          console.log("Cart ID:", cart._id);
           //setUserInfo(cart.userId);
 
           const updatedItems = [...cart.itemsList];
 
-          console.log("Updated Items:", updatedItems);
           // Check if product is already in cart
           const alreadyInCart = updatedItems.some(
             //(item) => item.productId._id === newProductId
             (item) => item._id === newProductId
           );
 
-          if (
-            newProductId &&
-            newQuantity &&
-            !alreadyInCart /*&& newRentalDate*/
-          ) {
+          if (newProductId && !alreadyInCart /*&& newRentalDate*/) {
+            console.log("Item not in cart");
             updatedItems.push({
               productId: newProductId,
-              quantity: newQuantity,
-              price: newCartItem.price,
+              quantity: 1,
+              price: newPrice,
               rentalDate: rentalDate,
             });
+
+            console.log("Updated Items:", updatedItems);
 
             const total = updatedItems.reduce(
               (sum, item) => sum + item.price * item.quantity,
@@ -309,12 +309,12 @@ export default function Cart({ setUpdateCart }) {
   }, [userInfo, newCartItem]);
 
   const formatItem = (item) => ({
-    name: item.productId.name,
-    imageUrl: item.productId.imageUrl,
-    price: item.productId.price,
+    name: item.name,
+    imageUrl: item.imageUrl,
+    price: item.price,
     quantity: item.quantity,
     rentalDate: rentalDate,
-    _id: item.productId._id,
+    _id: item._id,
   });
 
   const updateQuantity = async (productId, newQty) => {
@@ -378,7 +378,9 @@ export default function Cart({ setUpdateCart }) {
 
       if (!response.ok) throw new Error("Failed to update cart");
 
-      setCartItems(items);
+      const data = await response.json();
+      setCartItems(data.result.itemsList.map(formatItem));
+      console.log("Updated Cart:", data.result.itemsList);
       localStorage.setItem(
         "cartItemCount",
         items.reduce((sum, item) => sum + item.quantity, 0)
