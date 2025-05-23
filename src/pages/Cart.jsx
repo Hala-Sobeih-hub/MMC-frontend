@@ -14,7 +14,9 @@ export default function Cart({ setUpdateCart }) {
   const newProductId = searchParams.get("productId");
   const newQuantity = parseInt(searchParams.get("quantity"));
   const newRentalDate = searchParams.get("rentalDate");
+  const newPrice = parseFloat(searchParams.get("price"));
   const [rentalDate, setRentalDate] = useState(newRentalDate || ""); // Initialize rentalDate state
+  const [itemsList, setItemsList] = useState([]);
 
   console.log("Date:", newRentalDate);
 
@@ -74,17 +76,15 @@ export default function Cart({ setUpdateCart }) {
               body: JSON.stringify({
                 itemsList: newProductId
                   ? [
-                      {
-                        productId: newProductId,
-                        quantity: newQuantity || 1,
-                        price: 0, // price is ignored by backend populate
-                      },
-                    ]
+                    {
+                      productId: newProductId,
+                      quantity: newQuantity || 1,
+                      price: 0, // price is ignored by backend populate
+                    },
+                  ]
                   : [],
-                totalPrice: itemsList.reduce(
-                  (sum, item) => sum + item.price * item.quantity,
-                  0
-                ),
+                totalPrice: newPrice * newQuantity,
+
                 rentalDate: rentalDate,
                 deliveryAddress: "TBD",
                 eventNotes: "",

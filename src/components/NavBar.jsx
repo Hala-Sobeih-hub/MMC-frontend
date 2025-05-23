@@ -3,23 +3,19 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import Logo from "../assets/images/mmc-inflatable-logo.png";
 
-export default function NavBar({ token, handleLogout, updateCart }) {
+export default function NavBar({ token, handleLogout, updateCart, isAdmin }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const isLoggedIn = localStorage.getItem("Auth") === "true";
   // const [accountLink, setAccountLink] = useState("/login");
   const [role, setRole] = useState("");
 
-  const handleLogout = () => {
-    localStorage.removeItem("Auth");
-    navigate("/login");
-  };
+
   const [cartItems, setCartItems] = useState(0);
   // const [userInfo, setUserInfo] = useState({});
 
   const API = `http://localhost:8080/api/cart`;
-  const token = localStorage.getItem("token");
+
 
 
   //Get User Info and Number of items in cart
@@ -77,10 +73,10 @@ export default function NavBar({ token, handleLogout, updateCart }) {
 
   // Decide Account link destination
   useEffect(() => {
-
-    if (localStorage.getItem("Auth")) {
-      setRole(localStorage.getItem("Auth"));
-    } else { setRole(""); }
+    console.log(isAdmin);
+    // if (localStorage.getItem("Auth")) {
+    //   setRole(localStorage.getItem("Auth"));
+    // } else { setRole(""); }
   }, [token]);
   return (
     <header className="bg-secondary shadow-sm">
@@ -130,14 +126,8 @@ export default function NavBar({ token, handleLogout, updateCart }) {
             >
               About Us
             </NavLink>
-            <NavLink
-              to={role ? "/admin-management" : token ? "/my-account" : "/login"}
-              // onClick={e => {
-              //   // if (!isLoggedIn) {
-              //   //   e.preventDefault();
-              //   //   navigate("/login");
-              //   // }
-              // }}
+            <NavLink to={isAdmin ? "/admin-management" : token ? "/my-account" : "/login"}
+
               className={({ isActive }) =>
                 isActive
                   ? "block px-3 py-2 text-base font-medium text-gray-600 bg-gray-50 rounded-md"
@@ -147,7 +137,7 @@ export default function NavBar({ token, handleLogout, updateCart }) {
               Account
             </NavLink>
             {/* Only show Logout when signed in and not on auth pages */}
-            {isLoggedIn && !hideAuthNav && (
+            {token && !hideAuthNav && (
               <NavLink
                 to="#"
                 onClick={(e) => {
@@ -223,7 +213,7 @@ export default function NavBar({ token, handleLogout, updateCart }) {
               About Us
             </NavLink>
             <NavLink
-              to={role ? "/admin-management" : token ? "/my-account" : "/login"}
+              to={isAdmin ? "/admin-management" : token ? "/my-account" : "/login"}
 
               className={({ isActive }) =>
                 isActive
@@ -234,7 +224,7 @@ export default function NavBar({ token, handleLogout, updateCart }) {
               Account
             </NavLink>
             {/* Only show Logout when signed in and not on auth pages */}
-            {isLoggedIn && !hideAuthNav && (
+            {token && !hideAuthNav && (
               <NavLink
                 to="#"
                 onClick={(e) => {
