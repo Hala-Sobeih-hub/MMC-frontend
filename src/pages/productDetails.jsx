@@ -23,43 +23,71 @@ const ProductDetails = () => {
         navigate("/login", { state: { from: location.pathname + location.search } });
         return;
       }
-      const response = await fetch("http://localhost:8080/api/cart", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
 
-        body: JSON.stringify({
-          productId: product._id,
-          name: product.name,
-          date: selectedDate,
-          quantity: quantity,
-        }),
+      //Hala made changes here
+      //   const response = await fetch("http://localhost:8080/api/cart", {
+      //     method: "POST",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //       Authorization: `Bearer ${token}`,
+      //     },
+
+      //     body: JSON.stringify({
+      //       itemList: [
+      //         {
+      //           productId: product._id,
+      //           quantity: 1,
+      //           price: product.price,
+      //         },
+      //       ],
+      //       totalPrice: product.price,
+      //       rentalDate: selectedDate,
+      //       deliveryAddress: "", // Will be added in Booking page
+      //       eventNotes: "", // Will be added in Booking page
+      //     }),
+
+      // body: JSON.stringify({
+      //   productId: product._id,
+      //   name: product.name,
+      //   date: selectedDate,
+      //   quantity: quantity,
+      // }),
+      //   });
+
+      //   const data = await response.json();
+      //   console.log("Added to cart:", data);
+      console.log("Product passed to cart:", {
+        productId: product._id,
+        name: product.name,
+        date: selectedDate,
+        quantity: quantity,
+        price: product.price,
       });
 
-      const data = await response.json();
-      console.log("Added to cart:", data);
-      navigate(`/cart?productId=${product._id}&quantity=${product.quantity}&price=${product.price}&rentalDate=${selectedDate}`); // Redirect to the cart page after adding
+      navigate(
+        `/cart?productId=${product._id}&quantity=${product.quantity}&price=${
+          product.price
+        }&rentalDate=${selectedDate.toLocaleDateString()}`
+      ); // Redirect to the cart page after adding
     } catch (error) {
-      console.error("Error adding to cart:", error);
+      //   console.error("Error adding to cart:", error);
+      console.error("Error going to cart:", error);
     }
 
-    console.log({
-      productId: product._id,
-      name: product.name,
-      date: selectedDate,
-      quantity: quantity,
-    });
+    // console.log("from the product details page", {
+    //   productId: product._id,
+    //   name: product.name,
+    //   date: selectedDate,
+    //   quantity: quantity,
+    // });
   };
-
-
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/products/${window.location.pathname.split("/")[2]
+          `http://localhost:8080/api/products/${
+            window.location.pathname.split("/")[2]
           }`
         );
         if (!response.ok) throw new Error("Network response was not ok");
