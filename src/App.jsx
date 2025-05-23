@@ -16,15 +16,13 @@ import AdminInvitation from "./pages/Admin/AdminInvitation.jsx";
 import Cart from "./pages/Cart.jsx";
 import Booking from "./pages/Booking.jsx";
 import Products from "./pages/products.jsx";
-import Testimonials from "./pages/testimonials.jsx";
+
 import ProductDetails from "./pages/productDetails.jsx";
 import MyPreviousBookings from "./pages/MyPreviousBookings.jsx";
 
 import AdminManagement from "./pages/Admin/AdminManagement.jsx";
 import UserAccount from "./pages/UserAccount.jsx";
-import Products from "./pages/products.jsx";
 import Testimonials from "./components/testimonialCarousel.jsx";
-import ProductDetails from "./pages/productDetails.jsx";
 import Cart from "./components/Cart.jsx";
 
 function App() {
