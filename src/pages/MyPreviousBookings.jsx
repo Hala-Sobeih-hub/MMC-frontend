@@ -95,10 +95,44 @@ export default function MyPreviousBookings() {
         return "✅ Confirmed";
       case "pending":
         return "⏳ Pending";
-      case "cancelled":
-        return "❌ Cancelled";
+      case "canceled":
+        return "❌ Canceled";
       default:
         return "📦 Completed";
+    }
+  };
+
+  const handleCancelBooking = async (id) => {
+    const confirm = window.confirm(
+      "Are you sure you want to cancel this booking?"
+    );
+    if (!confirm) return;
+
+    try {
+      const res = await fetch(`${API}/cancel/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Failed to cancel booking");
+
+      const updated = await res.json();
+
+      console.log("Updated Booking:", updated);
+      //   setBookings((prev) =>
+      //     prev.map((b) =>
+      //       b._id === id ? { ...b, status: updated.result.status } : b
+      //     )
+      //   );
+
+      setBookings((prev) =>
+        prev.map((b) => (b._id === id ? updated.result : b))
+      );
+    } catch (err) {
+      alert("Could not cancel booking. It may be too late.");
     }
   };
 
@@ -159,7 +193,7 @@ export default function MyPreviousBookings() {
                       <>
                         <p>{booking.deliveryAddress}</p>
                         <button
-                          className="text-blue-500 underline mt-1"
+                          className="btn btn-primary underline mt-1"
                           onClick={() =>
                             handleEditClick(
                               booking._id,
@@ -172,6 +206,20 @@ export default function MyPreviousBookings() {
                       </>
                     )}
                   </div>
+
+                  {/* Cancel button if booking is <30 min old and not canceled */}
+                  {booking.status !== "canceled" &&
+                    new Date() - new Date(booking.createdAt) <
+                      30 * 60 * 1000 && (
+                      <div className="text-right mt-4">
+                        <button
+                          onClick={() => handleCancelBooking(booking._id)}
+                          className="bg-red-500 text-white px-4 py-2 rounded"
+                        >
+                          Cancel Booking
+                        </button>
+                      </div>
+                    )}
 
                   {booking.eventNotes && (
                     <div className="mt-2">

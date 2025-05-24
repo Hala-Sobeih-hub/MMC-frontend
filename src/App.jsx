@@ -80,8 +80,14 @@ function App() {
               // </ProtectedRoute>
             }
           />
-          <Route path="/booking" element={<Booking />} />
-          <Route path="/my-bookings" element={<MyPreviousBookings />} />
+          <Route
+            path="/booking"
+            element={<Booking setUpdateCart={setUpdateCart} />}
+          />
+          <Route
+            path="/my-bookings"
+            element={<MyPreviousBookings setUpdateCart={setUpdateCart} />}
+          />
 
           <Route path="/invite-admin" element={<AdminInvitation />} />
           <Route path="/admin-management" element={<AdminManagement />} />
