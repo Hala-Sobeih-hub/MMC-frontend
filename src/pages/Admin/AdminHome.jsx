@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "../../assets/images/mmc-inflatable-logo.png";
 
-export default function AdminManagement() {
+export default function AdminHome() {
   const [users, setUsers] = useState([]);
   const [deletionRequests, setDeletionRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -116,7 +116,7 @@ export default function AdminManagement() {
   // Fetch products
   const fetchProducts = async () => {
     try {
-      const res = await fetch(`${API}/products`, {
+      const res = await fetch(`${API}/products/all`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -126,7 +126,7 @@ export default function AdminManagement() {
       if (!res.ok) throw new Error("Failed to fetch products");
 
       const data = await res.json();
-      setProducts(data);
+      setProducts(data.result);
     } catch (err) {
       setError("Could not load products");
     }
@@ -142,7 +142,7 @@ export default function AdminManagement() {
         {/* User Accounts button> */}
         <button
           className="button-default rounded-lg p-5 text-xl bg-accent text-white hover:cursor-pointer shadow-md transition 
-               transform hover:scale-105 hover:shadow-lg "
+             transform hover:scale-105 hover:shadow-lg "
           onClick={() => navigate("/admin/users")}
         >
           <span className="text-2xl font-bold">User Accounts </span>
@@ -153,7 +153,7 @@ export default function AdminManagement() {
         {/* Available Products button> */}
         <button
           className="button-default rounded-lg p-5 text-xl bg-accent text-white hover:cursor-pointer shadow-md transition 
-               transform hover:scale-105 hover:shadow-lg "
+             transform hover:scale-105 hover:shadow-lg "
           onClick={() => navigate("/admin/products")}
         >
           <span className="text-2xl font-bold">Available Products </span>
@@ -163,7 +163,7 @@ export default function AdminManagement() {
         {/* Add Product Button */}
         <button
           className="button-default rounded-lg p-3 text-xl bg-accent text-white hover:cursor-pointer shadow-md transition 
-               transform hover:scale-105 hover:shadow-lg "
+             transform hover:scale-105 hover:shadow-lg "
           onClick={() => navigate("/admin/products/add-product")}
         >
           <span className="text-2xl font-bold">Add Product</span>
@@ -173,8 +173,8 @@ export default function AdminManagement() {
         <button
           // className="action-button rounded-lg p-3 text-xl bg-accent text-white"
           className="button-default rounded-lg p-3 text-xl bg-accent text-white  hover:cursor-pointer
-               shadow-md transition 
-               transform hover:scale-105 hover:shadow-lg "
+             shadow-md transition 
+             transform hover:scale-105 hover:shadow-lg "
           onClick={() => navigate("/admin/bookings")}
         >
           <span className="text-2xl font-bold">Bookings</span>{" "}
