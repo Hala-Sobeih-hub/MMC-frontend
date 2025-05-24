@@ -1,48 +1,28 @@
+// src/pages/Cart.jsx
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
-export default function Cart({ setUpdateCart }) {
-  const [cartItems, setCartItems] = useState([]); //All cart items are formatted for easier display
-  const [newCartItem, setNewCartItem] = useState(null); // New cart item to be added
-  const [cartId, setCartId] = useState(null); //
-  const [userInfo, setUserInfo] = useState({}); // User info from token
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  //const [cartFetched, setCartFetched] = useState(true); // Flag to check if cart is fetched
-  const [hasAddedToCart, setHasAddedToCart] = useState(false);
-
-  const [countRun, setCountRun] = useState(0); // Counter to trigger useEffect
-
-  const [searchParams] = useSearchParams();
-  // const [newProductId, setNewProductId] = useState(null); // New product ID from URL
-  // const [newQuantity, setNewQuantity] = useState(1); // New quantity from URL
-  // const [newRentalDate, setNewRentalDate] = useState(null); // New rental date from URL
-  // const [newPrice, setNewPrice] = useState(null); // New price from URL
-
-  const newProductId = searchParams.get("productId");
-  // setNewProductId(searchParams.get("productId"));
-  const newQuantity = parseInt(searchParams.get("quantity") || 1);
-  // setNewQuantity(parseInt(searchParams.get("quantity")) || 1); // Default to 1 if not provided
-  const newRentalDate = searchParams.get("rentalDate");
-  // setNewRentalDate(searchParams.get("rentalDate"));
-  const newPrice = parseFloat(searchParams.get("price"));
-  // setNewPrice(parseFloat(searchParams.get("price")) || 0); // Default to 0 if not provided
-  const [rentalDate, setRentalDate] = useState(newRentalDate || ""); // Initialize rentalDate state
-  // const [itemsList, setItemsList] = useState([]);
-
-  console.log("Date:", newRentalDate);
-
+const Cart = () => {
+  const location = useLocation();
   const navigate = useNavigate();
+  const [cart, setCart] = useState(null);
+  const [cartLoading, setCartLoading] = useState(true);
+  const [addedToCart, setAddedToCart] = useState(false); // Prevent re-adding on refresh
+
+  const [userInfo, setUserInfo] = useState({}); // User info from token
+
+  // Extract query params
+  const queryParams = new URLSearchParams(location.search);
+  const productId = queryParams.get("productId");
+  const quantity = parseInt(queryParams.get("quantity")) || 1;
+  const rentalDate = queryParams.get("rentalDate");
+
+  console.log("Product ID:", productId);
+  console.log("Quantity:", quantity);
+  console.log("Rental Date:", rentalDate);
 
   const API = `http://localhost:8080/api`;
   const token = localStorage.getItem("token");
-
-  // Handle checkout button click
-  // This function will redirect to the booking page
-  const handleCheckout = () => {
-    navigate("/booking");
-  };
 
   // Fetch user info from server using token
   // This function will be called when the component mounts
@@ -70,469 +50,220 @@ export default function Cart({ setUpdateCart }) {
     }
   }, [token]);
 
-  const fetchProduct = async () => {
+  useEffect(() => {
+    fetchCart();
+  }, []);
+
+  useEffect(() => {
+    if (
+      cart &&
+      productId &&
+      rentalDate &&
+      !addedToCart &&
+      !cart.itemsList.some((item) => item.productId._id === productId)
+    ) {
+      addItemToCart();
+    }
+  }, [cart, productId, rentalDate, addedToCart]);
+
+  const fetchCart = async () => {
     try {
-      setCountRun((prev) => prev + 1); //show number of times we run this code
-      console.log("Fetching product with ID:", newProductId);
-      console.log(`Product Link: ${API}/products/${newProductId}`);
-      const res = await fetch(`${API}/products/${newProductId}`, {
+      const res = await fetch(`${API}/cart/user/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      // if (!res.ok) throw new Error("Failed to fetch cart");
+      if (res.status === 404) {
+        console.log("No cart found, creating a new one...");
+        // No cart found — create one
+        const createRes = await fetch(`${API}/cart/create`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            rentalDate: rentalDate,
+          }),
+        });
 
-      if (!res.ok) throw new Error("Failed to fetch product");
+        if (!createRes.ok) throw new Error("Failed to create cart");
 
-      const data = await res.json();
-      console.log("Product Response from cart:", data);
-      setNewCartItem(data); // the new product to be added with all details
-      // setCartItems((prevItems) => [
-      //   // Add new product to cart items
-      //   ...prevItems,
-      //   {
-      //     name: data.name,
-      //     imageUrl: data.imageUrl,
-      //     price: data.price,
-      //     quantity: 1, //newQuantity || 1,
-      //     rentalDate: rentalDate,
-      //     _id: data._id,
-      //   },
-      // ]);
-      setUpdateCart((prev) => !prev); // Trigger cart update
-      localStorage.setItem(
-        "cartItemCount",
-        (parseInt(localStorage.getItem("cartItemCount")) || 0) + 1
-      ); // Update local storage count
-      console.log(
-        "Local Storage from Cart.jsx 1: ",
-        localStorage.getItem("cartItemCount")
-      );
-      setLoading(false);
-    } catch (err) {
-      console.error("Product Error:", err);
-      setError("Failed to load product.");
+        const createdData = await createRes.json();
+        setCart(createdData.result);
+      } else if (!res.ok) {
+        throw new Error("Failed to fetch cart");
+      } else {
+        const data = await res.json();
+        setCart(data.result);
+      }
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+    } finally {
+      setCartLoading(false);
     }
   };
 
-  useEffect(() => {
-    //When the component mounts, check if there is a new productId in the URL
-    //If there is, fetch the product details and add it to the cart
-    //If there is no productId, just fetch the cart
-    if (newProductId) {
-      console.log("fetch New Product ID:", newProductId);
-      fetchProduct();
-    }
-  }, [newProductId, token]);
-
-  // useEffect(() => {
-  //   if (userInfo._id && (newProductId ? newCartItem : true)) {
-  //     fetchCart();
-  //   }
-  // }, [userInfo, newCartItem]);
-
-  // Create a new cart if it doesn't exist
-  const createNewCart = async () => {
+  const addItemToCart = async () => {
     try {
-      console.log("Count of runs:", countRun);
-      console.log("Item to be added to cart", newCartItem);
-      console.log("from createNewCart, cartItems: ", cartItems);
-      console.log("User ID (from Post cart):", userInfo._id);
-      const newCartRes = await fetch(`${API}/cart/`, {
+      const res = await fetch(`${API}/cart/add-item`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          userId: userInfo._id,
-          itemsList: newProductId
-            ? [
-                {
-                  productId: newCartItem._id,
-                  // quantity: newQuantity || 1,
-                  quantity: 1,
-                  price: newCartItem.price, // price is ignored by backend populate
-                },
-              ]
-            : [],
-          totalPrice: newCartItem.price * 1, //newQuantity,
-
-          rentalDate: rentalDate,
-          deliveryAddress: "TBD",
-          eventNotes: "",
-        }),
+        body: JSON.stringify({ productId, quantity, rentalDate }),
       });
-
-      // if (!newCartItem || !newCartItem.price || !newQuantity) {
-      //   console.log("Missing data to calculate totalPrice", {
-      //     newCartItem,
-      //     newQuantity,
-      //   });
-      // }
-
-      console.log("Cart Item to add", {
-        userId: userInfo._id,
-        itemsList: newProductId
-          ? [
-              {
-                productId: newCartItem._id,
-                quantity: 1,
-                price: newCartItem.price, // price is ignored by backend populate
-              },
-            ]
-          : [],
-        totalPrice: newCartItem.price * 1,
-
-        rentalDate: rentalDate,
-        deliveryAddress: "TBD",
-        eventNotes: "",
-      });
-      if (!newCartRes.ok) throw new Error("Failed to create cart");
-      // console.log("New Cart Response:", newCartRes);
-      const data = await newCartRes.json();
-      console.log("New cart created:", data);
-      setCartId(data.result._id);
-
-      //setUserInfo(data.result.userId);
-      setCartItems(data.result.itemsList.map(formatItem));
-      localStorage.setItem(
-        "cartItemCount",
-        data.result.itemsList.reduce((sum, item) => sum + item.quantity, 0)
-      );
-      console.log(
-        "Local Storage from Cart.jsx 1: ",
-        localStorage.getItem("cartItemCount")
-      );
-    } catch (err) {
-      console.error("Create Cart Error:", err);
-      setError("Failed to create cart.");
-    }
-  };
-
-  /*
-    If the user visits /cart?productId=..., wait for:
-      1. userInfo._id
-      2. newCartItem to be fetched
-
-    If the user just visits /cart, wait only for:
-      1. userInfo._id
-  */
-
-  useEffect(() => {
-    if (!userInfo._id) return;
-    if (newProductId && !newCartItem) return;
-
-    // Fetch cart data from server
-    const fetchCart = async () => {
-      try {
-        // If token is not present, there is no cart
-        if (!token || !userInfo._id) return;
-
-        //if token exists, fetch the cart
-
-        const res = await fetch(`${API}/cart/user/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        console.log("Cart Response:", res);
-
-        // If the cart doesn't exist, create a new cart with only one new product
-        if (!res.ok) {
-          createNewCart();
-        } else {
-          console.log("Cart exists, fetching data...");
-          // If the cart exists, read the cart data
-          const cartData = await res.json();
-          const cart = cartData.result;
-
-          console.log("Cart Data:", cart);
-          setCartId(cart._id);
-          console.log("Cart ID:", cart._id);
-          //setUserInfo(cart.userId);
-
-          // Check if new product is passed in URL
-          // If new product is passed, add it to the cart
-          // If new product is not passed, just fetch the cart
-          const newProductId = searchParams.get("productId");
-          const newQuantity = parseInt(searchParams.get("quantity")) || 1; // Default to 1 if not provided
-          const newRentalDate = searchParams.get("rentalDate");
-          const newPrice = parseFloat(searchParams.get("price")) || 0; // Default to 0 if not provided
-
-          if (newProductId) {
-            console.log("New Product ID:", newProductId);
-            console.log("New Quantity:", newQuantity);
-            console.log("New Rental Date:", newRentalDate);
-            console.log("New Price:", newPrice);
-            //fetch the product details
-            // fetchProduct();
-
-            const updatedItems = [...cart.itemsList];
-
-            // Check if product is already in cart
-            // const alreadyInCart = updatedItems.some(
-            //   //(item) => item.productId._id === newProductId
-            //   // (item) => item._id === newProductId
-
-            // );
-
-            const alreadyInCart = updatedItems.some((item) => {
-              const id = item.productId?._id || item.productId;
-              return id === newProductId;
-            });
-
-            if (
-              newProductId &&
-              !alreadyInCart &&
-              !hasAddedToCart /*&& newRentalDate*/
-            ) {
-              console.log("Item not in cart");
-              updatedItems.push({
-                productId: newProductId,
-                quantity: 1,
-                price: newPrice,
-                rentalDate: rentalDate,
-              });
-
-              console.log("Updated Items:", updatedItems);
-
-              const total = updatedItems.reduce(
-                (sum, item) => sum + item.price * item.quantity,
-                0
-              );
-              // Save updated cart
-              await fetch(`${API}/cart/${cart._id}`, {
-                method: "PUT",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                  itemsList: updatedItems.map((item) => ({
-                    // productId: item.productId._id || item.productId,
-                    productId: item._id || item.productId,
-                    quantity: item.quantity,
-                    price: item.price,
-                    rentalDate: rentalDate,
-                  })),
-                  totalPrice: total,
-                  rentalDate: rentalDate,
-
-                  deliveryAddress: cart.deliveryAddress || "TBD",
-                  eventNotes: cart.eventNotes || "",
-                }),
-              });
-
-              setHasAddedToCart(true);
-            }
-          }
-          // Use fully populated items
-          // setCartItems(cart.itemsList.map(formatItem));
-
-          const refreshed = await fetch(`${API}/cart/user/`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          const refreshedCart = await refreshed.json();
-          setCartItems(refreshedCart.result.itemsList.map(formatItem));
-
-          localStorage.setItem(
-            "cartItemCount",
-            cart.itemsList.reduce((sum, item) => sum + item.quantity, 0)
-          );
-
-          console.log(
-            "Local Storage from Cart.jsx 2: ",
-            localStorage.getItem("cartItemCount")
-          );
-
-          setLoading(false);
-        }
-      } catch (err) {
-        console.error("Cart Error:", err);
-        setError("Failed to load cart.");
-        setLoading(false);
-      }
-    };
-
-    // Fallback logic:
-    if (userInfo._id && (newProductId ? newCartItem : true)) {
-      //&& !cartFetched) {
-      console.log("Adding new product to existing cart...");
+      if (!res.ok) throw new Error("Failed to add item");
+      setAddedToCart(true);
       fetchCart();
-      //setCartFetched(true);
+    } catch (error) {
+      console.error("Error adding to cart:", error);
     }
-    // Only run once on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userInfo, newCartItem]);
-
-  const formatItem = (item) => ({
-    name: item.productId?.name || item.name,
-    imageUrl: item.productId?.imageUrl || item.imageUrl,
-    price: item.price,
-    quantity: item.quantity,
-    rentalDate: rentalDate,
-    _id: item.productId?._id || item._id,
-  });
-
-  const updateQuantity = async (productId, newQty) => {
-    const updatedItems = cartItems.map((item) =>
-      item._id === productId ? { ...item, quantity: newQty } : item
-    );
-    localStorage.setItem(
-      "cartItemCount",
-      updatedItems.reduce((sum, item) => sum + item.quantity, 0)
-    );
-
-    console.log(
-      "Local Storage from Cart.jsx 3 (update Quantity): ",
-      localStorage.getItem("cartItemCount")
-    );
-
-    setUpdateCart((prev) => !prev);
-    await saveCart(updatedItems);
   };
 
-  const removeItem = async (productId) => {
-    const updatedItems = cartItems.filter((item) => item._id !== productId);
-    localStorage.setItem(
-      "cartItemCount",
-      updatedItems.reduce((sum, item) => sum + item.quantity, 0)
-    );
-
-    console.log(
-      "Local Storage from Cart.jsx 4: (removeItem)",
-      localStorage.getItem("cartItemCount")
-    );
-    await saveCart(updatedItems);
-  };
-
-  const saveCart = async (items) => {
+  const updateQuantity = async (itemId, newQty) => {
     try {
-      const total = cartItems.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0
-      );
-
-      const response = await fetch(`${API}/cart/${cartId}`, {
+      const res = await fetch(`${API}/cart/update-item`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          itemsList: items.map((item) => ({
-            productId: item._id,
-            quantity: item.quantity,
-            price: item.price,
-            rentalDate: rentalDate,
-          })),
-          totalPrice: total,
-          rentalDate: rentalDate,
-          deliveryAddress: "TBD",
-          eventNotes: "",
-        }),
+        body: JSON.stringify({ productId: itemId, quantity: newQty }),
       });
-
-      if (!response.ok) throw new Error("Failed to update cart");
-
-      const data = await response.json();
-      setCartItems(data.result.itemsList.map(formatItem));
-      console.log("Updated Cart:", data.result.itemsList);
-      localStorage.setItem(
-        "cartItemCount",
-        items.reduce((sum, item) => sum + item.quantity, 0)
-      );
-    } catch (err) {
-      console.error("Update Error:", err.message);
-      setError("Failed to update cart.");
+      if (!res.ok) throw new Error("Failed to update quantity");
+      fetchCart();
+    } catch (error) {
+      console.error("Error updating quantity:", error);
     }
   };
 
-  if (loading) return <div className="p-4">Loading cart...</div>;
+  const removeItem = async (itemId) => {
+    try {
+      const res = await fetch(`${API}/cart/remove-item`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ itemId }),
+      });
+      if (!res.ok) throw new Error("Failed to remove item");
+      fetchCart();
+    } catch (error) {
+      console.error("Error removing item:", error);
+    }
+  };
 
-  const total = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const getTotalPrice = () => {
+    if (!cart || !cart.itemsList) return 0;
+    return cart.itemsList.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
+  };
+
+  const handleCheckout = () => {
+    navigate("/booking", {
+      state: {
+        cartId: cart._id,
+        rentalDate: cart.rentalDate,
+      },
+    });
+  };
+
+  // Save cart item count to localStorage whenever cart updates
+  useEffect(() => {
+    if (cart?.itemsList) {
+      const totalItems = cart.itemsList.reduce(
+        (sum, item) => sum + item.quantity,
+        0
+      );
+      localStorage.setItem("cartItemCount", totalItems.toString());
+    }
+  }, [cart]);
+
+  if (cartLoading) return <div className="p-4">Loading cart...</div>;
 
   return (
-    <div className="p-4 max-w-4xl mx-auto">
+    <div className="p-4 max-w-3xl mx-auto">
       <h2 className="text-2xl font-bold mb-4">Your Cart</h2>
 
-      {userInfo && (
-        <div className="mb-4">
-          <p className="font-semibold">
-            User: {userInfo.firstName} {userInfo.lastName}
-          </p>
-          <p>Email: {userInfo.email}</p>
-        </div>
-      )}
-
-      {error && <p className="text-red-500">{error}</p>}
-      {console.log("from return Cart Items:", cartItems)}
-
-      {cartItems.length === 0 ? (
-        <p>No items in the cart.</p>
+      {cart?.itemsList?.length === 0 ? (
+        <p>Your cart is empty.</p>
       ) : (
-        <div className="space-y-4">
-          {cartItems.map((item) => (
-            <div
-              key={item._id}
-              className="flex items-center justify-between bg-white shadow p-4 rounded"
-            >
-              <div className="flex items-center gap-4">
-                <img
-                  src={item.imageUrl}
-                  alt={item.name}
-                  className="w-20 h-20 object-cover rounded"
-                />
-                <div>
-                  <h3 className="font-semibold text-lg">{item.name}</h3>
-                  {console.log("Item:", item)}
-                  <p>Rental Date: {rentalDate || "N/A"}</p>
-                  <div className="flex items-center gap-2 mt-2">
+        <>
+          <p className="mb-2 text-gray-600">
+            Rental Date:{" "}
+            <strong>{new Date(cart.rentalDate).toLocaleDateString()}</strong>
+          </p>
+
+          <ul className="space-y-4">
+            {cart.itemsList.map((item) => {
+              {
+                console.log(item);
+              }
+              return (
+                <li
+                  key={item._id}
+                  className="border p-4 rounded shadow-sm flex flex-col md:flex-row md:items-center md:justify-between"
+                >
+                  <div className="flex items-center gap-4">
+                    {item.productId?.image && (
+                      <img
+                        src={item.productId.imageUrl}
+                        alt={item.productId.name}
+                        className="w-24 h-24 object-cover rounded"
+                      />
+                    )}
+                    <div>
+                      <p className="font-semibold">{item.productId?.name}</p>
+                      <p>${item.price} each</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
                     <button
                       onClick={() =>
-                        updateQuantity(item._id, Math.max(1, item.quantity - 1))
+                        updateQuantity(item.productId._id, item.quantity - 1)
                       }
-                      className="px-2 py-1 bg-gray-200 rounded"
+                      className="px-3 py-1 rounded bg-gray-300 hover:bg-gray-400"
                     >
-                      −
+                      -
                     </button>
-                    <span>{item.quantity}</span>
+                    <span className="px-2">{item.quantity}</span>
                     <button
                       onClick={() =>
-                        updateQuantity(item._id, item.quantity + 1)
+                        updateQuantity(item.productId._id, item.quantity + 1)
                       }
-                      className="px-2 py-1 bg-gray-200 rounded"
+                      className="px-3 py-1 rounded bg-gray-300 hover:bg-gray-400"
                     >
                       +
                     </button>
+                    <button
+                      onClick={() => removeItem(item._id)}
+                      className="ml-2 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                    >
+                      Remove
+                    </button>
                   </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="font-bold text-lg">
-                  ${item.price * item.quantity}
-                </p>
-                <button
-                  onClick={() => removeItem(item._id)}
-                  className="text-red-500 text-sm mt-2"
-                >
-                  Remove
-                </button>
-              </div>
-            </div>
-          ))}
-          <div className="text-right text-xl font-bold pt-4 border-t">
-            Total: ${total.toFixed(2)}
+                </li>
+              );
+            })}
+          </ul>
+
+          <div className="mt-6 text-right">
+            <p className="text-lg font-semibold">Total: ${getTotalPrice()}</p>
+            <button
+              onClick={handleCheckout}
+              className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              Proceed to Checkout
+            </button>
           </div>
-          <button
-            className="btn btn-primary mt-4"
-            onClick={handleCheckout}
-            disabled={cartItems.length === 0}
-          >
-            Proceed to Checkout
-          </button>
-        </div>
+        </>
       )}
     </div>
   );
-}
+};
+
+export default Cart;
