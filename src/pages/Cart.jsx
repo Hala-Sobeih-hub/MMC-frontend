@@ -1,8 +1,8 @@
 // src/pages/Cart.jsx
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-// import Lottie from "lottie-react";
-// import emptyCartAnimation from "../assets/images/empty-cart.json";
+import Lottie from "lottie-react";
+import emptyCartAnimation from "../assets/images/empty-cart.json";
 
 export default function Cart({ setUpdateCart }) {
   const location = useLocation();
@@ -113,8 +113,26 @@ export default function Cart({ setUpdateCart }) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ productId, quantity, rentalDate }),
+        body: JSON.stringify({
+          productId,
+          quantity,
+          rentalDate,
+        }),
       });
+
+      if (res.status === 409) {
+        const data = await res.json();
+        console.log("Rental date conflict:", data.message);
+
+        // Show alert once
+        window.alert(data.message);
+
+        // Redirect back to product page (or any fallback)
+        navigate(`/products/${productId}`); // adjust this route to match your actual route
+
+        return; // Prevent further execution
+      }
+
       if (!res.ok) throw new Error("Failed to add item");
       setAddedToCart(true);
       fetchCart();
@@ -148,9 +166,18 @@ export default function Cart({ setUpdateCart }) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ itemId }),
+        body: JSON.stringify({ productId: itemId }),
       });
       if (!res.ok) throw new Error("Failed to remove item");
+
+      if (res.status === 204) {
+        setCart(null); // Clear cart state
+        localStorage.setItem("cartItemCount", 0); // Clear cart item count
+        // Cart deleted because it became empty
+        navigate("/cart");
+        return;
+      }
+
       fetchCart();
     } catch (error) {
       console.error("Error removing item:", error);
@@ -196,17 +223,21 @@ export default function Cart({ setUpdateCart }) {
 
   return (
     <div className="p-4 max-w-3xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Your Cart</h2>
-
-      {cart?.itemsList?.length === 0 ? (
-        <p>Your cart is empty.</p>
-      ) : (
+      {/* {cart?.itemsList?.length === 0 ? ( */}
+      {!cart ||
+      !Array.isArray(cart.itemsList) ||
+      cart.itemsList.length === 0 ? (
+        // <p>Your cart is empty.</p>
         // animation for empty cart
-        // <div className="flex flex-col items-center justify-center">
-        //   <Lottie animationData={emptyCartAnimation} style={{ height: 250 }} />
-        //   <p className="text-lg mt-4 text-gray-600">Your cart is empty.</p>
-        // </div>
+
+        <div className="flex flex-col items-center justify-center">
+          <h2 className="text-2xl font-bold mt-4">Your cart is empty.</h2>
+          <Lottie animationData={emptyCartAnimation} style={{ height: 250 }} />
+        </div>
+      ) : (
         <>
+          <h2 className="text-2xl font-bold mb-4">Your Cart</h2>
+
           <p className="mb-2 text-gray-600">
             Rental Date:{" "}
             <strong>{new Date(cart.rentalDate).toLocaleDateString()}</strong>
@@ -254,7 +285,7 @@ export default function Cart({ setUpdateCart }) {
                       +
                     </button>
                     <button
-                      onClick={() => removeItem(item._id)}
+                      onClick={() => removeItem(item.productId._id)}
                       className="ml-2 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
                     >
                       Remove
