@@ -1,8 +1,10 @@
 // src/pages/Cart.jsx
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+// import Lottie from "lottie-react";
+// import emptyCartAnimation from "../assets/images/empty-cart.json";
 
-const Cart = () => {
+export default function Cart({ setUpdateCart }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [cart, setCart] = useState(null);
@@ -164,12 +166,15 @@ const Cart = () => {
   };
 
   const handleCheckout = () => {
-    navigate("/booking", {
-      state: {
-        cartId: cart._id,
-        rentalDate: cart.rentalDate,
-      },
-    });
+    navigate(
+      "/booking"
+      // , {
+      //   state: {
+      //     cartId: cart._id,
+      //     rentalDate: cart.rentalDate,
+      //   },
+      // }
+    );
   };
 
   // Save cart item count to localStorage whenever cart updates
@@ -181,6 +186,10 @@ const Cart = () => {
       );
       localStorage.setItem("cartItemCount", totalItems.toString());
     }
+    //trigger re-render of parent component
+    // This is a workaround to force the parent component to re-render
+    // when the cart is updated. This is not the best practice, but it works for now.
+    setUpdateCart((prev) => !prev);
   }, [cart]);
 
   if (cartLoading) return <div className="p-4">Loading cart...</div>;
@@ -192,6 +201,11 @@ const Cart = () => {
       {cart?.itemsList?.length === 0 ? (
         <p>Your cart is empty.</p>
       ) : (
+        // animation for empty cart
+        // <div className="flex flex-col items-center justify-center">
+        //   <Lottie animationData={emptyCartAnimation} style={{ height: 250 }} />
+        //   <p className="text-lg mt-4 text-gray-600">Your cart is empty.</p>
+        // </div>
         <>
           <p className="mb-2 text-gray-600">
             Rental Date:{" "}
@@ -209,7 +223,7 @@ const Cart = () => {
                   className="border p-4 rounded shadow-sm flex flex-col md:flex-row md:items-center md:justify-between"
                 >
                   <div className="flex items-center gap-4">
-                    {item.productId?.image && (
+                    {item.productId?.imageUrl && (
                       <img
                         src={item.productId.imageUrl}
                         alt={item.productId.name}
@@ -264,6 +278,4 @@ const Cart = () => {
       )}
     </div>
   );
-};
-
-export default Cart;
+}
