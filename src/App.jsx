@@ -20,8 +20,7 @@ import Testimonials from "./components/testimonialCarousel.jsx";
 import ProductDetails from "./pages/productDetails.jsx";
 import MyPreviousBookings from "./pages/MyPreviousBookings.jsx";
 import AdminManagement from "./pages/Admin/AdminManagement.jsx";
-import AdminHome from "./pages/Admin/AdminHome.jsx";
-// import AdminProducts from "./pages/Admin/AdminProducts.jsx";
+import AdminProducts from "./pages/Admin/AdminProducts.jsx";
 import AdminBookings from "./pages/Admin/AdminBookings.jsx";
 import AdminUsers from "./pages/Admin/AdminUsers.jsx";
 
@@ -95,8 +94,7 @@ function App() {
 
           <Route path="/invite-admin" element={<AdminInvitation />} />
           <Route path="/admin-management" element={<AdminManagement />} />
-          {/* <Route path="/admin/home" element={<AdminHome />} /> */}
-          {/* <Route path="/admin/products" element={<AdminProducts />} /> */}
+          <Route path="/admin/products" element={<AdminProducts />} />
           <Route path="/admin/bookings" element={<AdminBookings />} />
           <Route path="/admin/users" element={<AdminUsers />} />
 

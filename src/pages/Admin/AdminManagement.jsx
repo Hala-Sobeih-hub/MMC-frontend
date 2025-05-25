@@ -134,6 +134,15 @@ export default function AdminManagement() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Logo */}
+      <div className="flex justify-center p-8">
+        <img
+          src={Logo}
+          alt="MMC Inflatables Logo"
+          className="w-32 h-32 object-cover rounded-full"
+        />
+      </div>
+
       <h1 className="text-3xl md:text-5xl font-bold text-center my-8">
         Admin Dashboard
       </h1>
