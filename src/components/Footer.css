@@ -1,0 +1,9 @@
+@media (max-width: 640px) {
+  /* Targets screens smaller than 640px (mobile) */
+  #contact-jump {
+    min-height: 100vh !important;
+    margin-bottom: 16vh;
+  }
+}
+
+/* overflow: scroll; */

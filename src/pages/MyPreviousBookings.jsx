@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from "react";
+//importing Toastify
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function MyPreviousBookings() {
   const [bookings, setBookings] = useState([]);
@@ -7,28 +10,89 @@ export default function MyPreviousBookings() {
   const [editMode, setEditMode] = useState({});
   const [editedAddresses, setEditedAddresses] = useState({});
 
+  //used to display the success toast
+  const [successMessage, setSuccessMessage] = useState(""); // Create the message state variable
+
+  //used to display the warning toast
+  const [warningMessage, setWarningMessage] = useState(""); // Create the message state variable
+
+  //used to display the error toast
+  const [errorMessage, setErrorMessage] = useState(""); // Create the message state variable
+
   const API = `http://localhost:8080/api/booking`;
   const token = localStorage.getItem("token");
 
+  //Used to display the success Toast
   useEffect(() => {
-    const fetchBooking = async () => {
-      try {
-        const res = await fetch(`${API}/my-bookings/`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
+    if (successMessage) {
+      console.log(`from Inquiry.jsx : ${successMessage}`);
 
-        if (!res.ok) throw new Error("Failed to fetch bookings");
+      toast.success(successMessage, {
+        position: "top-center",
+        autoClose: 5000,
+        closeOnClick: false,
+        draggable: false,
+        hideProgressBar: true,
+      });
+      // Reset successMessage after showing the toast
+      setSuccessMessage("");
+    }
+  }, [successMessage]); // Toast only shows when successMessage changes
 
-        const data = await res.json();
-        setBookings(data.result);
-      } catch (err) {
-        setError("Could not load bookings");
-      }
-    };
+  // Used to display the warning Toast
+  useEffect(() => {
+    if (warningMessage) {
+      console.log(`from Inquiry.jsx : ${warningMessage}`);
 
+      toast.warning(warningMessage, {
+        position: "top-center",
+        autoClose: 5000,
+        closeOnClick: false,
+        draggable: false,
+        hideProgressBar: true,
+      });
+      // Reset warningMessage after showing the toast
+      setWarningMessage("");
+    }
+  }, [warningMessage]); // Toast only shows when warningMessage changes
+
+  // Used to display the error Toast
+  useEffect(() => {
+    if (errorMessage) {
+      console.log(`from Inquiry.jsx : ${errorMessage}`);
+
+      toast.error(errorMessage, {
+        position: "top-center",
+        autoClose: 5000,
+        closeOnClick: false,
+        draggable: false,
+        hideProgressBar: true,
+      });
+      // Reset errorMessage after showing the toast
+      setErrorMessage("");
+    }
+  }, [errorMessage]); // Toast only shows when errorMessage changes
+
+  const fetchBooking = async () => {
+    try {
+      const res = await fetch(`${API}/my-bookings/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch bookings");
+
+      const data = await res.json();
+      setBookings(data.result);
+    } catch (err) {
+      setError("Could not load bookings");
+    }
+  };
+
+  // Fetch bookings when the component mounts
+  useEffect(() => {
     fetchBooking();
   }, []);
 
@@ -83,19 +147,24 @@ export default function MyPreviousBookings() {
             : booking
         )
       );
+
+      // fetchBooking();
+
       setEditMode((prev) => ({ ...prev, [id]: false }));
+      setSuccessMessage("Address updated successfully.");
     } catch (err) {
       alert("Failed to update address.");
+      setErrorMessage("Failed to update address.");
     }
   };
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case "confirmed":
+      case "Confirmed":
         return "✅ Confirmed";
-      case "pending":
+      case "Pending":
         return "⏳ Pending";
-      case "canceled":
+      case "Canceled":
         return "❌ Canceled";
       default:
         return "📦 Completed";
@@ -122,17 +191,17 @@ export default function MyPreviousBookings() {
       const updated = await res.json();
 
       console.log("Updated Booking:", updated);
-      //   setBookings((prev) =>
-      //     prev.map((b) =>
-      //       b._id === id ? { ...b, status: updated.result.status } : b
-      //     )
-      //   );
 
-      setBookings((prev) =>
-        prev.map((b) => (b._id === id ? updated.result : b))
-      );
+      // setBookings((prev) =>
+      //   prev.map((b) => (b._id === id ? updated.result : b))
+      // );
+
+      fetchBooking();
+
+      setSuccessMessage("Booking canceled successfully.");
     } catch (err) {
-      alert("Could not cancel booking. It may be too late.");
+      //alert("Could not cancel booking. It may be too late.");
+      setErrorMessage("Could not cancel booking. It may be too late.");
     }
   };
 
@@ -215,6 +284,17 @@ export default function MyPreviousBookings() {
                         <button
                           onClick={() => handleCancelBooking(booking._id)}
                           className="bg-red-500 text-white px-4 py-2 rounded"
+                          // This button will only show if the booking is less than 30 minutes old and not canceled otherwise do not show it
+                          disabled={booking.status === "Canceled"}
+                          //change style to gray-400 if booking is canceled
+                          style={{
+                            backgroundColor:
+                              booking.status === "Canceled" ? "gray" : "red",
+                            cursor:
+                              booking.status === "Canceled"
+                                ? "not-allowed"
+                                : "pointer",
+                          }}
                         >
                           Cancel Booking
                         </button>

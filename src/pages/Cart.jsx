@@ -38,8 +38,8 @@ export default function Cart({ setUpdateCart }) {
         });
         if (!res.ok) throw new Error("Failed to fetch user info");
         const data = await res.json();
-        console.log("User Info:", data);
-        console.log("User ID:", data._id);
+        console.log("User Info:", data.result);
+        console.log("User ID:", data.result._id);
         setUserInfo(data);
       } catch (err) {
         console.error("User Info Error:", err);
