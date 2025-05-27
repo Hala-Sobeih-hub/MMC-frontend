@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const Booking = () => {
+const Booking = ({ setUpdateCart }) => {
   const [cart, setCart] = useState(null);
   const [userInfo, setUserInfo] = useState({});
 
@@ -103,6 +103,13 @@ const Booking = () => {
       console.error(err);
       alert("Error: " + err.message);
     }
+
+    //clear cartItemCount from localStorage
+    localStorage.setItem("cartItemCount", 0);
+    // Optionally, you can clear the cart state
+    setCart(null);
+
+    setUpdateCart((prev) => !prev);
 
     // Redirect to My Bookings page
     navigate("/my-bookings");

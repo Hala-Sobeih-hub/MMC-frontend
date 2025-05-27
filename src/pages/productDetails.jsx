@@ -11,6 +11,7 @@ const ProductDetails = () => {
   const [selectedDate, setSelectedDate] = useState(); // State to
   // hold the selected date
   const [quantity, setQuantity] = useState(1); // State to hold the quantity
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -23,6 +24,8 @@ const ProductDetails = () => {
         navigate("/login", { state: { from: location.pathname + location.search } });
         return;
       }
+
+      setQuantity(1); // Reset quantity to 1 after booking
 
       //Hala made changes here
       //   const response = await fetch("http://localhost:8080/api/cart", {
@@ -65,7 +68,7 @@ const ProductDetails = () => {
       });
 
       navigate(
-        `/cart?productId=${product._id}&quantity=${product.quantity}&price=${
+        `/cart?productId=${product._id}&quantity=${quantity}&price=${
           product.price
         }&rentalDate=${selectedDate.toLocaleDateString()}`
       ); // Redirect to the cart page after adding

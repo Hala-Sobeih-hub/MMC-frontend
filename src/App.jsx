@@ -20,6 +20,9 @@ import Testimonials from "./components/testimonialCarousel.jsx";
 import ProductDetails from "./pages/productDetails.jsx";
 import MyPreviousBookings from "./pages/MyPreviousBookings.jsx";
 import AdminManagement from "./pages/Admin/AdminManagement.jsx";
+import AdminProducts from "./pages/Admin/AdminProducts.jsx";
+import AdminBookings from "./pages/Admin/AdminBookings.jsx";
+import AdminUsers from "./pages/Admin/AdminUsers.jsx";
 
 function App() {
   const [updateCart, setUpdateCart] = useState(false);
@@ -80,11 +83,21 @@ function App() {
               // </ProtectedRoute>
             }
           />
-          <Route path="/booking" element={<Booking />} />
-          <Route path="/my-bookings" element={<MyPreviousBookings />} />
+          <Route
+            path="/booking"
+            element={<Booking setUpdateCart={setUpdateCart} />}
+          />
+          <Route
+            path="/my-bookings"
+            element={<MyPreviousBookings setUpdateCart={setUpdateCart} />}
+          />
 
           <Route path="/invite-admin" element={<AdminInvitation />} />
           <Route path="/admin-management" element={<AdminManagement />} />
+          <Route path="/admin/products" element={<AdminProducts />} />
+          <Route path="/admin/bookings" element={<AdminBookings />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+
           {/* <Route path="/user-account" element={<UserAccount />} /> */}
         </Routes>
         <Footer />

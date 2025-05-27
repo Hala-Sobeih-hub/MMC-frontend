@@ -1,178 +1,217 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Logo from "../../assets/images/mmc-inflatable-logo.png";
 
-const AdminManagement = () => {
-    const [users, setUsers] = useState([]);
-    const [deletionRequests, setDeletionRequests] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+export default function AdminManagement() {
+  const [users, setUsers] = useState([]);
+  const [deletionRequests, setDeletionRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-    // Fetch all users and deletion requests
-    const fetchUsersAndRequests = async () => {
-        setLoading(true);
-        try {
-            // Fetch all users
-            const usersResponse = await fetch("http://localhost:8080/api/users/all", {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`, // Include token for authentication
-                },
-            });
-            const usersData = await usersResponse.json();
-            setUsers(usersData.AllUsers);
-            console.log("Users", usersData.AllUsers);
-            // Fetch deletion requests
-            const requestsResponse = await fetch("http://localhost:8080/api/users/deletion-requests", {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`, // Include token for authentication
-                },
-            });
-            const requestsData = await requestsResponse.json();
-            setDeletionRequests(requestsData.pendingRequests);
+  const [bookings, setBookings] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [pendingBookingsCount, setPendingBookingsCount] = useState(0);
+  const [confirmedBookingsCount, setConfirmedBookingsCount] = useState(0);
+  const [completedBookingsCount, setCompletedBookingsCount] = useState(0);
+  const [canceledBookingsCount, setCanceledBookingsCount] = useState(0);
 
-            setLoading(false);
-        } catch (err) {
-            console.error(err);
-            setError("Failed to fetch data.");
-            setLoading(false);
-        }
-    };
+  const API = `http://localhost:8080/api`;
+  const token = localStorage.getItem("token");
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        fetchUsersAndRequests();
-    }, []);
+  useEffect(() => {
+    //if token expires, redirect to Login
+    if (!token) {
+      navigate("/login"); // Redirect to login if token is missing
+    }
+  }, [navigate]);
 
+  useEffect(() => {
+    //fetch all users and deletion requests
+    fetchUsersAndRequests();
+    //fetch bookings
+    fetchBookings();
+    //fetch products
+    fetchProducts();
+  }, []);
 
-    const handleRoleChange = async (userId, newRole) => {
-        try {
-            const response = await fetch(`http://localhost:8080/api/users/update-role/${userId}`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${localStorage.getItem("token")}`, // Include token for authentication
-                },
-                body: JSON.stringify({ role: newRole }),
-            });
+  // Fetch all users and deletion requests
+  const fetchUsersAndRequests = async () => {
+    setLoading(true);
+    try {
+      // Fetch all users
+      const usersResponse = await fetch(`${API}/users/all`, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include token for authentication
+        },
+      });
+      const usersData = await usersResponse.json();
+      setUsers(usersData.AllUsers);
+      console.log("Users", usersData.AllUsers);
+      // Fetch deletion requests
+      const requestsResponse = await fetch(`${API}/users/deletion-requests`, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include token for authentication
+        },
+      });
+      const requestsData = await requestsResponse.json();
+      setDeletionRequests(requestsData.pendingRequests);
 
-            if (!response.ok) {
-                throw new Error("Failed to update user role.");
-            }
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to fetch data.");
+      setLoading(false);
+    }
+  };
 
-            alert(`User role updated to ${newRole} successfully.`);
+  // Fetch bookings
+  const fetchBookings = async () => {
+    try {
+      const res = await fetch(`${API}/booking/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-            // Refetch users to ensure the frontend reflects the latest data
-            fetchUsersAndRequests();
-        } catch (err) {
-            console.error(err);
-            alert("Failed to update user role. Please try again.");
-        }
-    };
+      if (!res.ok) throw new Error("Failed to fetch bookings");
 
-    const handleRequestAction = async (requestId, action) => {
-        const confirmationMessage =
-            action === "approve"
-                ? "Are you sure you want to approve this deletion request?"
-                : "Are you sure you want to reject this deletion request?";
+      const data = await res.json();
+      setBookings(data.result);
 
-        if (!window.confirm(confirmationMessage)) return;
+      // Calculate count of booking with status 'Pending'
+      const pendingBookings = data.result.filter(
+        (booking) => booking.status === "Pending"
+      ).length;
 
-        try {
-            const response = await fetch(`http://localhost:8080/api/users/deletion-requests/${requestId}`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${localStorage.getItem("token")}`, // Include token for authentication
-                },
-                body: JSON.stringify({ action }),
-            });
+      //console.log("Count of pendingBookings:", pendingBookings);
+      setPendingBookingsCount(pendingBookings); // Update the state with the count
 
-            if (!response.ok) {
-                throw new Error(`Failed to ${action} deletion request.`);
-            }
+      // Calculate count of booking with status 'Confirmed'
+      const confirmedBookings = data.result.filter(
+        (booking) => booking.status === "Confirmed"
+      ).length;
 
-            alert(`Deletion request ${action}d successfully.`);
+      //console.log("Count of pendingBookings:", pendingBookings);
+      setConfirmedBookingsCount(confirmedBookings); // Update the state with the count
 
-            // Update the deletionRequests state
-            setDeletionRequests(deletionRequests.filter((request) => request._id !== requestId));
-        } catch (err) {
-            console.error(err);
-            alert(`Failed to ${action} deletion request. Please try again.`);
-        }
-    };
+      // Calculate count of booking with status 'Completed'
+      const completedBookings = data.result.filter(
+        (booking) => booking.status === "Completed"
+      ).length;
+      //console.log("Count of pendingBookings:", pendingBookings);
+      setCompletedBookingsCount(completedBookings); // Update the state with the count
+      // Calculate count of booking with status 'Canceled'
+      const canceledBookings = data.result.filter(
+        (booking) => booking.status === "Canceled"
+      ).length;
+      //console.log("Count of pendingBookings:", pendingBookings);
+      setCanceledBookingsCount(canceledBookings); // Update the state with the count
+    } catch (err) {
+      setError("Could not load bookings");
+    }
+  };
 
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p className="text-red-500">{error}</p>;
+  // Fetch products
+  const fetchProducts = async () => {
+    try {
+      const res = await fetch(`${API}/products`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    return (
-        <div className="p-8">
-            {/* Logo */}
-            <div className="flex justify-center mb-6">
-                <img src={Logo} alt="MMC Inflatables Logo" className="w-32 h-32 object-cover rounded-full" />
-            </div>
+      if (!res.ok) throw new Error("Failed to fetch products");
 
-            <h1 className="text-3xl font-bold mb-6">Admin Management</h1>
+      const data = await res.json();
+      setProducts(data);
+    } catch (err) {
+      setError("Could not load products");
+    }
+  };
 
+  return (
+    <div className="min-h-screen flex flex-col">
+      {/* Logo */}
+      <div className="flex justify-center p-8">
+        <img
+          src={Logo}
+          alt="MMC Inflatables Logo"
+          className="w-32 h-32 object-cover rounded-full"
+        />
+      </div>
 
-            {/* All Users */}
-            <h2 className="text-2xl font-bold mb-4">All Users</h2>
-            <table className="table-auto w-full border-collapse border border-gray-300">
-                <thead>
-                    <tr className="bg-gray-200">
-                        <th className="border border-gray-300 px-4 py-2">Name</th>
-                        <th className="border border-gray-300 px-4 py-2">Email</th>
-                        <th className="border border-gray-300 px-4 py-2">Role</th>
-                        <th className="border border-gray-300 px-4 py-2">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {users.map((user) => (
-                        <tr key={user._id} className="text-center">
-                            <td className="border border-gray-300 px-4 py-2">
-                                {user.firstName} {user.lastName}
-                            </td>
-                            <td className="border border-gray-300 px-4 py-2">{user.email}</td>
-                            <td className="border border-gray-300 px-4 py-2">
-                                <select
-                                    value={user.role || "User"}
-                                    onChange={(e) => handleRoleChange(user._id, e.target.value)}
-                                    className="border border-gray-300 rounded px-2 py-1"
-                                >
-                                    <option value="User">User</option>
-                                    <option value="Admin">Admin</option>
-                                </select>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+      <h1 className="text-3xl md:text-5xl font-bold text-center my-8">
+        Admin Dashboard
+      </h1>
 
-            {/* Deletion Requests */}
-            <h2 className="text-2xl font-bold mt-8 mb-4">Deletion Requests</h2>
-            <ul className="divide-y divide-gray-200">
-                {deletionRequests.map((request) => (
-                    <li key={request._id} className="flex justify-between items-center py-4">
-                        <div>
-                            <p><strong>User:</strong> {request.firstName} {request.lastName}</p>
-                            <p><strong>Email:</strong> {request.email}</p>
-                        </div>
-                        <div className="flex space-x-4">
-                            <button
-                                onClick={() => handleRequestAction(request._id, "approve")}
-                                className="btn btn-success"
-                            >
-                                Approve
-                            </button>
-                            <button
-                                onClick={() => handleRequestAction(request._id, "reject")}
-                                className="btn btn-warning"
-                            >
-                                Reject
-                            </button>
-                        </div>
-                    </li>
-                ))}
-            </ul>
-        </div>
-    );
-};
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-6">
+        {/* User Accounts button> */}
+        <button
+          className="button-default rounded-lg p-5 text-xl bg-accent text-white hover:cursor-pointer shadow-md transition 
+               transform hover:scale-105 hover:shadow-lg "
+          onClick={() => navigate("/admin/users")}
+        >
+          <span className="text-2xl font-bold">User Accounts </span>
+          <br />
+          <span className="text-lg mt-2">{users.length}</span>
+          <br />
+        </button>
+        {/* Available Products button> */}
+        <button
+          className="button-default rounded-lg p-5 text-xl bg-accent text-white hover:cursor-pointer shadow-md transition 
+               transform hover:scale-105 hover:shadow-lg "
+          onClick={() => navigate("/admin/products")}
+        >
+          <span className="text-2xl font-bold">Available Products </span>
+          <br /> <span className="text-lg">{products.length}</span> <br />{" "}
+        </button>
 
-export default AdminManagement;
+        {/* Add Product Button */}
+        <button
+          className="button-default rounded-lg p-3 text-xl bg-accent text-white hover:cursor-pointer shadow-md transition 
+               transform hover:scale-105 hover:shadow-lg "
+          onClick={() => navigate("/admin/products/add-product")}
+        >
+          <span className="text-2xl font-bold">Add Product</span>
+        </button>
+
+        {/* Bookings */}
+        <button
+          // className="action-button rounded-lg p-3 text-xl bg-accent text-white"
+          className="button-default rounded-lg p-3 text-xl bg-accent text-white  hover:cursor-pointer
+               shadow-md transition 
+               transform hover:scale-105 hover:shadow-lg "
+          onClick={() => navigate("/admin/bookings")}
+        >
+          <span className="text-2xl font-bold">Bookings</span>{" "}
+          {/* Larger font for "Bookings" */}
+          <br />
+          <span className="text-lg mt-2">
+            {" "}
+            ⏳ Pending: {pendingBookingsCount}
+          </span>{" "}
+          <br /> {/* Smaller font for the count */}
+          <span className="text-lg mt-1">
+            {" "}
+            ✅ Confirmed: {confirmedBookingsCount}
+          </span>{" "}
+          <br />
+          <span className="text-lg mt-1">
+            📦 Completed: {completedBookingsCount}
+          </span>
+          <br />
+          <span className="text-lg mt-1">
+            ❌ Canceled: {canceledBookingsCount}
+          </span>
+        </button>
+      </div>
+
+      <p>
+        <br />
+      </p>
+    </div>
+  );
+}
