@@ -1,19 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import bounceImage1 from "../../assets/images/bounce-image-1.jpg";
-// import bounceImage2 from "../../assets/images/bounce-image-2.jpg";
-// import bounceImage3 from "../../assets/images/bounce-image-3.jpg";
-// import Logo from "../../assets/images/mmc-inflatable-logo.png";
 
 const LoginPage = ({ updateToken }) => {
     const [isLogin, setIsLogin] = useState(true);
-    // const [isSignup, setIsSignup] = useState(false);
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    // const [showPassword, setShowPassword] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState("");
     const [deliveryAddress, setDeliveryAddress] = useState({
         streetAddress: "",
@@ -22,34 +17,64 @@ const LoginPage = ({ updateToken }) => {
         postalCode: "",
     });
 
-    const [errorMsg, setErrorMsg] = useState("");
-    const [showPassword, setShowPassword] = useState(false); // Toggle for password visibility
+    // Signup-specific states
+    const [signupPassword, setSignupPassword] = useState("");
+    const [signupConfirmPassword, setSignupConfirmPassword] = useState("");
+    const [signupShowPassword, setSignupShowPassword] = useState(false);
+    const [signupShowConfirmPassword, setSignupShowConfirmPassword] = useState(false);
+    const [signupPasswordStrength, setSignupPasswordStrength] = useState("");
+    const [signupError, setSignupError] = useState("");
 
-    // const [currentImage, setCurrentImage] = useState(0);
+    const [errorMsg, setErrorMsg] = useState("");
     const navigate = useNavigate();
 
-    // const backgroundImages = [bounceImage1, bounceImage2, bounceImage3];
+    // Password strength calculation
+    const calculatePasswordStrength = (password) => {
+        let strength = 0;
+        if (password.length >= 8) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[a-z]/.test(password)) strength++;
+        if (/\d/.test(password)) strength++;
+        if (/[@$!%*?&]/.test(password)) strength++;
+        if (strength === 5) return "Strong";
+        if (strength >= 3) return "Medium";
+        return "Weak";
+    };
 
-    // // Change the background image every 5 seconds
-    // useEffect(() => {
-    //     const interval = setInterval(() => {
-    //         setCurrentImage((prevImage) => (prevImage + 1) % backgroundImages.length);
-    //     }, 5000); // 5000ms = 5 seconds
-
-    //     return () => clearInterval(interval); // Cleanup interval on component unmount
-    // }, [backgroundImages.length]);
+    const handleSignupPasswordChange = (e) => {
+        const value = e.target.value;
+        setSignupPassword(value);
+        setSignupPasswordStrength(calculatePasswordStrength(value));
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        try {
+        setSignupError("");
+        setErrorMsg("");
 
+        if (!isLogin) {
+            if (signupPassword !== signupConfirmPassword) {
+                setSignupError("Passwords do not match");
+                return;
+            }
+        }
+
+        try {
             const endpoint = isLogin
                 ? "http://localhost:8080/api/users/login"
                 : "http://localhost:8080/api/users/signup";
 
             const body = isLogin
                 ? { username, password }
-                : { firstName, lastName, email, username, password, phoneNumber, deliveryAddress };
+                : {
+                    firstName,
+                    lastName,
+                    email,
+                    username,
+                    password: signupPassword,
+                    phoneNumber,
+                    deliveryAddress
+                };
 
             const response = await fetch(endpoint, {
                 method: "POST",
@@ -59,60 +84,29 @@ const LoginPage = ({ updateToken }) => {
                 body: JSON.stringify(body),
             });
 
-            // console.log("Response:", response);
             if (!response.ok) {
                 throw new Error(isLogin ? "Login failed" : "Signup failed");
             }
 
             const data = await response.json();
-            console.log("Data:", data);
 
             if (isLogin) {
-                // localStorage.setItem("token", data.Token);
-                // localStorage.setItem("Auth", data.User.isAdmin);
                 updateToken(data.Token, data.User.isAdmin);
                 navigate("/");
-
-
             } else {
                 alert("Signup successful! Please log in.");
-                setIsLogin(true); // Switch to login form after signup
+                setIsLogin(true);
                 navigate("/");
             }
-
-            // updateToken(data.Token, "");
         } catch (err) {
-            console.log(err);
             setErrorMsg(err.message);
         }
-    }
-    return (
-        <div className="flex items-center justify-center min-h-screen w-screen bg-cover bg-center bg-secondary  overflow-y-auto"
-        // style={{
-        //     backgroundImage: `url(${backgroundImages[currentImage]})`,
-        //     transition: "background-image 0.5s ease-in-out",
-        // }}
-        >
-            <div className="w-full max-w-xl p-8 space-y-6 bg-secondary ">
-                {/* <div className="flex justify-center">
-                    <img src={Logo} alt="MMC Inflatables Logo" className="max-w-[20em] h-[20em] object-cover rounded-full" />
-                </div> */}
-                <h1 className="text-3xl font-bold text-center text-white">{isLogin ? "Login" : "Signup"}</h1>
-                {/* <div className='flex justify-center space-x-4 mb-4'>
-                    <button
-                        onClick={() => setIsLogin(true)}
-                        className={`btn ${isLogin ? "btn-primary" : "btn-outline"}`}
-                    >
-                        Login
-                    </button>
-                    <button
-                        onClick={() => setIsLogin(false)}
-                        className={`btn ${!isLogin ? "btn-primary" : "btn-outline"}`}
-                    >
-                        Signup
-                    </button>
+    };
 
-                </div> */}
+    return (
+        <div className="flex items-center justify-center min-h-screen w-screen bg-cover bg-center bg-secondary overflow-y-auto">
+            <div className="w-full max-w-xl p-8 space-y-6 bg-secondary ">
+                <h1 className="text-3xl font-bold text-center text-white">{isLogin ? "Login" : "Signup"}</h1>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {/* Signup-specific fields */}
                     {!isLogin && (
@@ -244,47 +238,147 @@ const LoginPage = ({ updateToken }) => {
                         </>
                     )}
 
+                    {/* Login Username and Password */}
+                    {isLogin && (
+                        <>
+                            <div className="form-control">
+                                <label className="label">
+                                    <span className="label-text text-xl">Username</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter your username"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    className="input input-bordered w-full"
+                                    required
+                                />
+                            </div>
+                            <div className="form-control relative">
+                                <label className="label">
+                                    <span className="label-text text-xl">Password</span>
+                                </label>
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="Enter your password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="input input-bordered w-full"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    className="absolute right-3 top-8.5 text-gray-500"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {showPassword ? "Hide" : "Show"}
+                                </button>
+                            </div>
+                        </>
+                    )}
 
-                    {/* Shared fields for both Login and Signup */}
-                    <div className="form-control">
-                        <label className="label">
-                            <span className="label-text text-xl">Username</span>
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Enter your username"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            className="input input-bordered w-full"
-                            required
-                        />
-                    </div>
-                    <div className="form-control relative">
-                        <label className="label">
-                            <span className="label-text text-xl">Password</span>
-                        </label>
-                        <input
-                            type={showPassword ? "text" : "password"}
-                            placeholder="Enter your password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="input input-bordered w-full"
-                            required
-                        />
+                    {/* Username, Password, Confirm Password for Signup - AT THE BOTTOM */}
+                    {!isLogin && (
+                        <>
+                            <div className="form-control">
+                                <label className="label">
+                                    <span className="label-text text-xl">Username</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter your username"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    className="input input-bordered w-full"
+                                    required
+                                />
+                            </div>
+                            <div className="form-control relative">
+                                <label className="label">
+                                    <span className="label-text text-xl">Password</span>
+                                </label>
+                                <input
+                                    type={signupShowPassword ? "text" : "password"}
+                                    placeholder="Enter your password"
+                                    value={signupPassword}
+                                    onChange={handleSignupPasswordChange}
+                                    className="input input-bordered w-full"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    className="absolute right-3 top-8.5 text-gray-500"
+                                    onClick={() => setSignupShowPassword(!signupShowPassword)}
+                                >
+                                    {signupShowPassword ? "Hide" : "Show"}
+                                </button>
+                                {/* Password Strength Indicator - only show if password is not empty */}
+                                {signupPassword.length > 0 && (
+                                    <div className="mt-2">
+                                        <div
+                                            className={`h-2 rounded transition-all ${signupPasswordStrength === "Strong"
+                                                ? "bg-green-600 w-full"
+                                                : signupPasswordStrength === "Medium"
+                                                    ? "bg-yellow-500 w-2/3"
+                                                    : "bg-red-500 w-1/3"
+                                                }`}
+                                        ></div>
+                                        <p className="text-sm mt-1">
+                                            Strength:{" "}
+                                            <span
+                                                className={`font-bold ${signupPasswordStrength === "Strong"
+                                                    ? "text-green-800"
+                                                    : signupPasswordStrength === "Medium"
+                                                        ? "text-yellow-500"
+                                                        : "text-red-500"
+                                                    }`}
+                                            >
+                                                {signupPasswordStrength || "Weak"}
+                                            </span>
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="form-control relative">
+                                <label className="label">
+                                    <span className="label-text text-xl">Confirm Password</span>
+                                </label>
+                                <input
+                                    type={signupShowConfirmPassword ? "text" : "password"}
+                                    placeholder="Confirm your password"
+                                    value={signupConfirmPassword}
+                                    onChange={(e) => setSignupConfirmPassword(e.target.value)}
+                                    className="input input-bordered w-full"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    className="absolute right-3 top-8.5 text-gray-500"
+                                    onClick={() => setSignupShowConfirmPassword(!signupShowConfirmPassword)}
+                                >
+                                    {signupShowConfirmPassword ? "Hide" : "Show"}
+                                </button>
+                                {/* Password match indicator */}
+                                {signupConfirmPassword && (
+                                    <p className={`mt-1 text-sm ${signupPassword === signupConfirmPassword ? "text-green-600" : "text-red-500"}`}>
+                                        {signupPassword === signupConfirmPassword ? "Passwords match" : "Passwords do not match"}
+                                    </p>
+                                )}
+                            </div>
+                            <div className="justify-items-center">
+                                <p className="text-gray-700 text-center text-md">
+                                    Password must be at least 8 characters long and include at least one uppercase letter,
+                                    one lowercase letter, one number, and one special character.
+                                </p>
+                            </div>
+                        </>
+                    )}
 
-                        <button
-                            type="button"
-                            className="absolute right-3 top-8.5 text-gray-500"
-                            onClick={() => setShowPassword(!showPassword)} // Toggle visibility
-                        >
-                            {showPassword ? "Hide" : "Show"}
-                        </button>
-                    </div>
                     {/* Error message */}
                     {errorMsg && <p className="text-red-500 text-sm">{errorMsg}</p>}
+                    {signupError && <p className="text-red-500 text-sm">{signupError}</p>}
                     {/* Submit button */}
-                    <button type="submit" className="button-default btn btn-primary w-full text-xl
-                    hover:text-teal-600">
+                    <button type="submit" className="button-default btn btn-primary w-full text-xl hover:text-teal-600">
                         {isLogin ? "Login" : "Signup"}
                     </button>
                 </form>
@@ -293,9 +387,7 @@ const LoginPage = ({ updateToken }) => {
                         Don't have an account?{" "}
                         <button
                             onClick={() => setIsLogin(false)}
-                            className="text-neutral hover:text-teal-700 
-                            hover:underline
-                            cursor-pointer"
+                            className="text-neutral hover:text-teal-700 hover:underline cursor-pointer"
                         >
                             Signup here
                         </button>
@@ -306,9 +398,7 @@ const LoginPage = ({ updateToken }) => {
                         Already have an account?{" "}
                         <button
                             onClick={() => setIsLogin(true)}
-                            className="text-neutral hover:text-teal-700 
-                            hover:underline
-                            cursor-pointer"
+                            className="text-neutral hover:text-teal-700 hover:underline cursor-pointer"
                         >
                             Login here
                         </button>
@@ -317,9 +407,7 @@ const LoginPage = ({ updateToken }) => {
                 <p className="text-center">
                     <button
                         onClick={() => navigate("/password/forgot")}
-                        className="text-neutral hover:text-teal-700 
-                        hover:underline
-                        cursor-pointer"
+                        className="text-neutral hover:text-teal-700 hover:underline cursor-pointer"
                     >
                         Forgot Password?
                     </button>
@@ -329,5 +417,4 @@ const LoginPage = ({ updateToken }) => {
     );
 };
 
-
-export default LoginPage
+export default LoginPage;
