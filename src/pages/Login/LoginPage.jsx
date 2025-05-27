@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 // import bounceImage1 from "../../assets/images/bounce-image-1.jpg";
 // import bounceImage2 from "../../assets/images/bounce-image-2.jpg";
 // import bounceImage3 from "../../assets/images/bounce-image-3.jpg";
@@ -13,6 +13,11 @@ const LoginPage = ({ updateToken }) => {
     const [email, setEmail] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+
+    const location = useLocation();
+    const from = location.state?.from || "/";
+
+
     // const [showPassword, setShowPassword] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState("");
     const [deliveryAddress, setDeliveryAddress] = useState({
@@ -71,7 +76,7 @@ const LoginPage = ({ updateToken }) => {
                 // localStorage.setItem("token", data.Token);
                 // localStorage.setItem("Auth", data.User.isAdmin);
                 updateToken(data.Token, data.User.isAdmin);
-                navigate("/");
+                navigate(from, { replace: true });
 
 
             } else {

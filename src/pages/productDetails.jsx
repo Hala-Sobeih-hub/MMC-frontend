@@ -21,7 +21,7 @@ const ProductDetails = () => {
       const token = localStorage.getItem("token");
       if (!token) {
         //save the current location to redirect after login
-        navigate("/login", { state: { from: location.pathname } });
+        navigate("/login", { state: { from: location.pathname + location.search } });
         return;
       }
 
@@ -147,7 +147,7 @@ const ProductDetails = () => {
               Selected Date: {selectedDate.toLocaleDateString()}
             </span>
             {/* Add your booking button here */}
-            <button className="btn btn-primary ml-4" onClick={handleBook}>
+            <button className="btn btn-accent text-white ml-4" onClick={handleBook}>
               Book This Date
             </button>
           </div>
