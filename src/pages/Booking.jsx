@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+//importing Toastify
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const Booking = ({ setUpdateCart }) => {
   const [cart, setCart] = useState(null);
   const [userInfo, setUserInfo] = useState({});
@@ -10,9 +14,69 @@ const Booking = ({ setUpdateCart }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  //used to display the success toast
+  const [successMessage, setSuccessMessage] = useState(""); // Create the message state variable
+
+  //used to display the warning toast
+  const [warningMessage, setWarningMessage] = useState(""); // Create the message state variable
+
+  //used to display the error toast
+  const [errorMessage, setErrorMessage] = useState(""); // Create the message state variable
+
   const API = `http://localhost:8080/api`;
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
+
+  //Used to display the success Toast
+  useEffect(() => {
+    if (successMessage) {
+      console.log(`from Inquiry.jsx : ${successMessage}`);
+
+      toast.success(successMessage, {
+        position: "top-center",
+        autoClose: 5000,
+        closeOnClick: false,
+        draggable: false,
+        hideProgressBar: true,
+      });
+      // Reset successMessage after showing the toast
+      setSuccessMessage("");
+    }
+  }, [successMessage]); // Toast only shows when successMessage changes
+
+  // Used to display the warning Toast
+  useEffect(() => {
+    if (warningMessage) {
+      console.log(`from Inquiry.jsx : ${warningMessage}`);
+
+      toast.warning(warningMessage, {
+        position: "top-center",
+        autoClose: 5000,
+        closeOnClick: false,
+        draggable: false,
+        hideProgressBar: true,
+      });
+      // Reset warningMessage after showing the toast
+      setWarningMessage("");
+    }
+  }, [warningMessage]); // Toast only shows when warningMessage changes
+
+  // Used to display the error Toast
+  useEffect(() => {
+    if (errorMessage) {
+      console.log(`from Inquiry.jsx : ${errorMessage}`);
+
+      toast.error(errorMessage, {
+        position: "top-center",
+        autoClose: 5000,
+        closeOnClick: false,
+        draggable: false,
+        hideProgressBar: true,
+      });
+      // Reset errorMessage after showing the toast
+      setErrorMessage("");
+    }
+  }, [errorMessage]); // Toast only shows when errorMessage changes
 
   useEffect(() => {
     const fetchCart = async () => {
@@ -45,7 +109,8 @@ const Booking = ({ setUpdateCart }) => {
 
   const handleBookingSubmit = async () => {
     if (!deliveryAddress) {
-      alert("Please enter a delivery address.");
+      //alert("Please enter a delivery address.");
+      setWarningMessage("Please enter a delivery address.");
       return;
     }
 
@@ -78,11 +143,14 @@ const Booking = ({ setUpdateCart }) => {
         throw new Error(err.message || "Booking failed");
       }
 
-      alert("Booking successful!");
+      // alert("Booking successful!");
+      setSuccessMessage("Booking successful!"); // Set the success message state variable
+
       // Optionally redirect or clear cart
     } catch (err) {
       console.error(err);
-      alert("Error: " + err.message);
+      //alert("Error: " + err.message);
+      setErrorMessage("Error: " + err.message); // Set the error message state variable
     }
 
     // Delete the cart after booking
@@ -102,6 +170,7 @@ const Booking = ({ setUpdateCart }) => {
     } catch (err) {
       console.error(err);
       alert("Error: " + err.message);
+      setErrorMessage("Error: " + err.message); // Set the error message state variable
     }
 
     //clear cartItemCount from localStorage
@@ -192,6 +261,11 @@ const Booking = ({ setUpdateCart }) => {
           rows="3"
           value={deliveryAddress}
           onChange={(e) => setDeliveryAddress(e.target.value)}
+          //****** ONLY For Demo --- Start
+          onClick={(e) => {
+            e.target.value = "112 Parker Ave, Manasquan, NJ 08736";
+          }}
+          //****** ONLY For Demo --- End
         />
       </div>
 
