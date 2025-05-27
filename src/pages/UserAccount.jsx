@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import profilePlaceholder from "../assets/images/empty-profile-pic.jpg";
+import { useNavigate } from "react-router-dom";
+
+
 
 const UserAccount = ({ setUser, user }) => {
     const [bookings, setBookings] = useState([]);
@@ -16,6 +19,7 @@ const UserAccount = ({ setUser, user }) => {
 
     const token = localStorage.getItem("token");
     const API = "http://localhost:8080/api";
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetch(`${API}/users/my-profile`, {
@@ -23,6 +27,7 @@ const UserAccount = ({ setUser, user }) => {
         })
             .then((res) => res.json())
             .then((data) => {
+                console.log(data)
                 setUser(data.result);
                 setForm({
                     firstName: data.result.firstName || "",
@@ -33,12 +38,6 @@ const UserAccount = ({ setUser, user }) => {
                     profilePic: data.result.profilePic || "",
                 });
             });
-
-        fetch(`${API}/booking/my-bookings`, {
-            headers: { Authorization: `Bearer ${token}` },
-        })
-            .then((res) => res.json())
-            .then((data) => setBookings(data.result || []));
     }, [token, setUser]);
 
     const handleChange = (e) => {
@@ -139,16 +138,10 @@ const UserAccount = ({ setUser, user }) => {
                 </div>
             )}
             <h2 className="text-xl font-semibold mb-2">My Bookings</h2>
-            <ul className="space-y-2">
-                {bookings.length === 0 && <li>No bookings found.</li>}
-                {bookings.map((booking) => (
-                    <li key={booking._id} className="border p-2 rounded">
-                        <div><strong>Product:</strong> {booking.productName}</div>
-                        <div><strong>Date:</strong> {booking.rentalDate}</div>
-                        <div><strong>Status:</strong> {booking.status}</div>
-                    </li>
-                ))}
-            </ul>
+            <button
+                type="button"
+                className="btn btn-secondary mt-2"
+                onClick={() => navigate("/my-bookings")}>View Previous Bookings</button>
         </div>
     );
 };

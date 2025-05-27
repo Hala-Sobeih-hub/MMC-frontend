@@ -2,6 +2,10 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
+//importing Toastify
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import "./App.css";
 
 import NavBar from "./components/NavBar.jsx";
@@ -25,6 +29,7 @@ import AdminBookings from "./pages/Admin/AdminBookings.jsx";
 import AdminUsers from "./pages/Admin/AdminUsers.jsx";
 import About from "./pages/About.jsx";
 import UserAccount from "./pages/UserAccount.jsx";
+import Inquiry from "./pages/Inquiry.jsx";
 
 function App() {
   const [updateCart, setUpdateCart] = useState(false);
@@ -77,50 +82,62 @@ function App() {
           isAdmin={isAdmin}
           profilePic={user?.profilePic}
         />
-        <Routes>
-          {/* PUBLIC ROUTES */}
-          <Route path="/" element={<Home />} />
-          <Route
-            path="/login"
-            element={<LoginPage updateToken={updateToken} />}
-          />
-          <Route path="/password/forgot" element={<ForgotPassword />} />
-          <Route path="/password/reset" element={<ResetPassword />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/testimonials" element={<Testimonials />} />
-          <Route path="/products/:id" element={<ProductDetails />} />
+        {/* This div lets content expand and pushes the footer down */}
+        {/* <div className="flex-grow"> */}
+        {/* This wrapper allows content to grow and push footer down */}
+        <main className="flex-grow">
+          <Routes>
+            {/* PUBLIC ROUTES */}
+            <Route path="/" element={<Home />} />
+            <Route
+              path="/login"
+              element={<LoginPage updateToken={updateToken} />}
+            />
+            <Route path="/password/forgot" element={<ForgotPassword />} />
+            <Route path="/password/reset" element={<ResetPassword />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/testimonials" element={<Testimonials />} />
+            <Route path="/products/:id" element={<ProductDetails />} />
 
-          <Route path="/password/forgot" element={<ForgotPassword />} />
-          <Route path="/password/reset/:token" element={<ResetPassword />} />
-          {/* Protected Routes */}
-          <Route
-            path="/cart"
-            element={
-              // <ProtectedRoute>
-              <Cart setUpdateCart={setUpdateCart} />
-              // </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/booking"
-            element={<Booking setUpdateCart={setUpdateCart} />}
-          />
-          <Route
-            path="/my-bookings"
-            element={<MyPreviousBookings setUpdateCart={setUpdateCart} />}
-          />
+            <Route path="/password/forgot" element={<ForgotPassword />} />
+            <Route path="/password/reset/:token" element={<ResetPassword />} />
+            <Route path="/inquiry" element={<Inquiry />} />
+            {/* Protected Routes */}
+            <Route
+              path="/cart"
+              element={
+                // <ProtectedRoute>
+                <Cart setUpdateCart={setUpdateCart} />
+                // </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/booking"
+              element={<Booking setUpdateCart={setUpdateCart} />}
+            />
+            <Route
+              path="/my-bookings"
+              element={<MyPreviousBookings setUpdateCart={setUpdateCart} />}
+            />
 
-          <Route path="/invite-admin" element={<AdminInvitation />} />
-          <Route path="/admin-management" element={<AdminManagement />} />
-          <Route path="/admin/products" element={<AdminProducts />} />
-          <Route path="/admin/bookings" element={<AdminBookings />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/about" element={<About />}></Route>
+            <Route path="/invite-admin" element={<AdminInvitation />} />
+            <Route path="/admin-management" element={<AdminManagement />} />
+            <Route path="/admin/products" element={<AdminProducts />} />
+            <Route path="/admin/bookings" element={<AdminBookings />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
 
-          <Route path="/my-account" element={<UserAccount setUser={setUser} user={user} />} />
-        </Routes>
+            <Route path="/about" element={<About />}></Route>
+
+            <Route path="/my-account" element={<UserAccount setUser={setUser} user={user} />} />
+          </Routes>
+          {/* </div> */}
+        </main>
+
         <Footer />
       </Router>
+      {/* Keep only one ToastContainer, preferably in App.jsx or a top-level layout component, and remove any duplicates from other files. */}
+      {/* Toast Container Must Be Here */}
+      <ToastContainer />
     </div>
   );
 }

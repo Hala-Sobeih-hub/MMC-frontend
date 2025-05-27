@@ -1,8 +1,10 @@
 import React from "react";
 import "./HeroSection.css";
 import heroImage from "../assets/heroImage-1.webp";
+import { useNavigate } from "react-router-dom";
 
 export default function HeroSection() {
+  const navigate = useNavigate();
   return (
     <div
       className="hero-wrapper relative w-full h-[92dvh] bg-center bg-cover flex flex-col justify-center items-center"
@@ -28,6 +30,9 @@ export default function HeroSection() {
         <button
           className="text-neutral bg-primary rounded-xl font-bold 
         sm:text-xl md:text-2xl lg:text-4xl px-6 py-3 mx-auto hover:text-teal-600"
+          onClick={() => {
+            navigate("/products");
+          }}
         >
           Book Now for Your Summer of Fun!
         </button>
