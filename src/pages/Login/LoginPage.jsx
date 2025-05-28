@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+// import bounceImage1 from "../../assets/images/bounce-image-1.jpg";
+// import bounceImage2 from "../../assets/images/bounce-image-2.jpg";
+// import bounceImage3 from "../../assets/images/bounce-image-3.jpg";
+// import Logo from "../../assets/images/mmc-inflatable-logo.png";
+
 
 const LoginPage = ({ updateToken }) => {
     const [isLogin, setIsLogin] = useState(true);
@@ -8,6 +13,7 @@ const LoginPage = ({ updateToken }) => {
     const [email, setEmail] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+
     const [showPassword, setShowPassword] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState("");
     const [deliveryAddress, setDeliveryAddress] = useState({

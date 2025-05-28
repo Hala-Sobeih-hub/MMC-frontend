@@ -73,26 +73,26 @@ export default function MyPreviousBookings() {
     }
   }, [errorMessage]); // Toast only shows when errorMessage changes
 
+  const fetchBooking = async () => {
+    try {
+      const res = await fetch(`${API}/my-bookings/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch bookings");
+
+      const data = await res.json();
+      setBookings(data.result);
+    } catch (err) {
+      setError("Could not load bookings");
+    }
+  };
+
   // Fetch bookings when the component mounts
   useEffect(() => {
-    const fetchBooking = async () => {
-      try {
-        const res = await fetch(`${API}/my-bookings/`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!res.ok) throw new Error("Failed to fetch bookings");
-
-        const data = await res.json();
-        setBookings(data.result);
-      } catch (err) {
-        setError("Could not load bookings");
-      }
-    };
-
     fetchBooking();
   }, []);
 
@@ -147,6 +147,9 @@ export default function MyPreviousBookings() {
             : booking
         )
       );
+
+      // fetchBooking();
+
       setEditMode((prev) => ({ ...prev, [id]: false }));
       setSuccessMessage("Address updated successfully.");
     } catch (err) {
@@ -189,9 +192,12 @@ export default function MyPreviousBookings() {
 
       console.log("Updated Booking:", updated);
 
-      setBookings((prev) =>
-        prev.map((b) => (b._id === id ? updated.result : b))
-      );
+      // setBookings((prev) =>
+      //   prev.map((b) => (b._id === id ? updated.result : b))
+      // );
+
+      fetchBooking();
+
       setSuccessMessage("Booking canceled successfully.");
     } catch (err) {
       //alert("Could not cancel booking. It may be too late.");
@@ -278,6 +284,17 @@ export default function MyPreviousBookings() {
                         <button
                           onClick={() => handleCancelBooking(booking._id)}
                           className="bg-red-500 text-white px-4 py-2 rounded"
+                          // This button will only show if the booking is less than 30 minutes old and not canceled otherwise do not show it
+                          disabled={booking.status === "Canceled"}
+                          //change style to gray-400 if booking is canceled
+                          style={{
+                            backgroundColor:
+                              booking.status === "Canceled" ? "gray" : "red",
+                            cursor:
+                              booking.status === "Canceled"
+                                ? "not-allowed"
+                                : "pointer",
+                          }}
                         >
                           Cancel Booking
                         </button>
