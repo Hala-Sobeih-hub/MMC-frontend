@@ -27,6 +27,8 @@ import AdminManagement from "./pages/Admin/AdminManagement.jsx";
 import AdminProducts from "./pages/Admin/AdminProducts.jsx";
 import AdminBookings from "./pages/Admin/AdminBookings.jsx";
 import AdminUsers from "./pages/Admin/AdminUsers.jsx";
+import About from "./pages/About.jsx";
+import UserAccount from "./pages/UserAccount.jsx";
 import Inquiry from "./pages/Inquiry.jsx";
 
 function App() {
@@ -34,6 +36,9 @@ function App() {
 
   const [token, setToken] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
+
+  const [user, setUser] = useState(null);
+
 
   const updateToken = (passedToken, Auth) => {
     localStorage.setItem("token", passedToken);
@@ -55,6 +60,18 @@ function App() {
     }
   }, []);
 
+  useEffect(() => {
+    // Fetch user profile on mount if token exists
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetch("http://localhost:8080/api/users/my-profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then((data) => setUser(data.result));
+    }
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col" data-theme="cupcake">
       <Router>
@@ -63,6 +80,7 @@ function App() {
           handleLogout={handleLogout}
           updateCart={updateCart}
           isAdmin={isAdmin}
+          profilePic={user?.profilePic}
         />
         {/* This div lets content expand and pushes the footer down */}
         {/* <div className="flex-grow"> */}
@@ -108,7 +126,9 @@ function App() {
             <Route path="/admin/bookings" element={<AdminBookings />} />
             <Route path="/admin/users" element={<AdminUsers />} />
 
-            {/* <Route path="/user-account" element={<UserAccount />} /> */}
+            <Route path="/about" element={<About />}></Route>
+
+            <Route path="/my-account" element={<UserAccount setUser={setUser} user={user} />} />
           </Routes>
           {/* </div> */}
         </main>
