@@ -4,6 +4,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Lottie from "lottie-react";
 import emptyCartAnimation from "../assets/images/empty-cart.json";
 
+//importing Toastify
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 export default function Cart({ setUpdateCart }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -12,6 +16,15 @@ export default function Cart({ setUpdateCart }) {
   const [addedToCart, setAddedToCart] = useState(false); // Prevent re-adding on refresh
 
   const [userInfo, setUserInfo] = useState({}); // User info from token
+
+  //used to display the success toast
+  const [successMessage, setSuccessMessage] = useState(""); // Create the message state variable
+
+  //used to display the warning toast
+  const [warningMessage, setWarningMessage] = useState(""); // Create the message state variable
+
+  //used to display the error toast
+  const [errorMessage, setErrorMessage] = useState(""); // Create the message state variable
 
   // Extract query params
   const queryParams = new URLSearchParams(location.search);
@@ -25,6 +38,23 @@ export default function Cart({ setUpdateCart }) {
 
   const API = `http://localhost:8080/api`;
   const token = localStorage.getItem("token");
+
+  // Used to display the warning Toast
+  useEffect(() => {
+    if (warningMessage) {
+      console.log(`from Inquiry.jsx : ${warningMessage}`);
+
+      toast.warning(warningMessage, {
+        position: "top-center",
+        autoClose: 5000,
+        closeOnClick: false,
+        draggable: false,
+        hideProgressBar: true,
+      });
+      // Reset warningMessage after showing the toast
+      setWarningMessage("");
+    }
+  }, [warningMessage]); // Toast only shows when warningMessage changes
 
   // Fetch user info from server using token
   // This function will be called when the component mounts
@@ -125,7 +155,8 @@ export default function Cart({ setUpdateCart }) {
         console.log("Rental date conflict:", data.message);
 
         // Show alert once
-        window.alert(data.message);
+        //window.alert(data.message);
+        setWarningMessage(data.message); // Set warning message to show in toast
 
         // Redirect back to product page (or any fallback)
         navigate(`/products/${productId}`); // adjust this route to match your actual route
