@@ -171,38 +171,96 @@ export default function MyPreviousBookings() {
     }
   };
 
-  const handleCancelBooking = async (id) => {
-    const confirm = window.confirm(
-      "Are you sure you want to cancel this booking?"
+  // const handleCancelBooking = async (id) => {
+  //   const confirm = window.confirm(
+  //     "Are you sure you want to cancel this booking?"
+  //   );
+  //   if (!confirm) return;
+
+  //   try {
+  //     const res = await fetch(`${API}/cancel/${id}`, {
+  //       method: "PUT",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+
+  //     if (!res.ok) throw new Error("Failed to cancel booking");
+
+  //     const updated = await res.json();
+
+  //     console.log("Updated Booking:", updated);
+
+  //     // setBookings((prev) =>
+  //     //   prev.map((b) => (b._id === id ? updated.result : b))
+  //     // );
+
+  //     fetchBooking();
+
+  //     setSuccessMessage("Booking canceled successfully.");
+  //   } catch (err) {
+  //     //alert("Could not cancel booking. It may be too late.");
+  //     setErrorMessage("Could not cancel booking. It may be too late.");
+  //   }
+  // };
+
+  const handleCancelBooking = (id) => {
+    const toastId = "cancel-confirmation";
+
+    const ConfirmCancelToast = ({ closeToast }) => (
+      <div>
+        <p className="font-semibold">Cancel this booking?</p>
+        <div className="flex justify-end gap-3 mt-3">
+          <button
+            className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded"
+            onClick={async () => {
+              toast.dismiss(toastId); // Dismiss the confirmation toast
+
+              try {
+                const res = await fetch(`${API}/cancel/${id}`, {
+                  method: "PUT",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
+                });
+
+                if (!res.ok) throw new Error("Failed to cancel booking");
+
+                const updated = await res.json();
+                console.log("Updated Booking:", updated);
+
+                fetchBooking();
+                setSuccessMessage("Booking canceled successfully.");
+              } catch (err) {
+                setErrorMessage(
+                  "Could not cancel booking. It may be too late."
+                );
+              }
+            }}
+          >
+            Yes
+          </button>
+          <button
+            className="bg-gray-300 hover:bg-gray-400 px-4 py-1 rounded text-white"
+            onClick={closeToast}
+          >
+            No
+          </button>
+        </div>
+      </div>
     );
-    if (!confirm) return;
 
-    try {
-      const res = await fetch(`${API}/cancel/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) throw new Error("Failed to cancel booking");
-
-      const updated = await res.json();
-
-      console.log("Updated Booking:", updated);
-
-      // setBookings((prev) =>
-      //   prev.map((b) => (b._id === id ? updated.result : b))
-      // );
-
-      fetchBooking();
-
-      setSuccessMessage("Booking canceled successfully.");
-    } catch (err) {
-      //alert("Could not cancel booking. It may be too late.");
-      setErrorMessage("Could not cancel booking. It may be too late.");
-    }
+    toast.info(ConfirmCancelToast, {
+      toastId,
+      position: "top-center",
+      autoClose: false,
+      closeOnClick: false,
+      draggable: false,
+      closeButton: false,
+      hideProgressBar: true,
+    });
   };
 
   return (
