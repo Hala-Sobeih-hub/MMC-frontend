@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 // import bounceImage1 from "../../assets/images/bounce-image-1.jpg";
 // import bounceImage2 from "../../assets/images/bounce-image-2.jpg";
 // import bounceImage3 from "../../assets/images/bounce-image-3.jpg";
@@ -32,6 +34,7 @@ const LoginPage = ({ updateToken }) => {
     const [signupError, setSignupError] = useState("");
 
     const [errorMsg, setErrorMsg] = useState("");
+    const [warningMessage, setWarningMessage] = useState(""); // Create the message state variable
     const navigate = useNavigate();
 
     // Password strength calculation
@@ -98,7 +101,7 @@ const LoginPage = ({ updateToken }) => {
 
             if (isLogin) {
                 updateToken(data.Token, data.User.isAdmin);
-                navigate("/");
+                navigate(-1);
             } else {
                 alert("Signup successful! Please log in.");
                 setIsLogin(true);
@@ -108,6 +111,23 @@ const LoginPage = ({ updateToken }) => {
             setErrorMsg(err.message);
         }
     };
+
+    useEffect(() => {
+        if (localStorage.getItem("token")) {
+            toast.warning("You're already logged in!", {
+                position: "top-center",
+                autoClose: 5000,
+                closeOnClick: false,
+                draggable: false,
+                hideProgressBar: true,
+            });
+            navigate("/"); // Clear the warning message after showing the toast
+
+
+
+        }
+    }, []);
+
 
     return (
         <div className="flex items-center justify-center min-h-screen w-screen bg-cover bg-center bg-secondary overflow-y-auto">

@@ -74,8 +74,11 @@ export default function Inquiry() {
         body: JSON.stringify(newInquiry),
       });
 
-      if (!res.ok) throw new Error("Failed to update address");
-
+      // if (!res.ok) throw new Error("Failed to update address");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to submit inquiry");
+      }
       const messageRecieved = await res.json();
 
       console.log("Message Recieved:", messageRecieved.message);
@@ -136,7 +139,7 @@ export default function Inquiry() {
               onClick={(e) => {
                 e.target.value = "Daniel Harris";
               }}
-              //****** ONLY For Demo --- End
+            //****** ONLY For Demo --- End
             />
 
             {/* Email Field */}
@@ -153,7 +156,7 @@ export default function Inquiry() {
               onClick={(e) => {
                 e.target.value = "daniel.harris@email.com";
               }}
-              //****** ONLY For Demo --- End
+            //****** ONLY For Demo --- End
             />
 
             {/* Phone Field */}
@@ -170,7 +173,7 @@ export default function Inquiry() {
               onClick={(e) => {
                 e.target.value = "512-555-1239";
               }}
-              //****** ONLY For Demo --- End
+            //****** ONLY For Demo --- End
             />
 
             {/* Address Field */}
@@ -187,7 +190,7 @@ export default function Inquiry() {
               onClick={(e) => {
                 e.target.value = "38 Union Ave, Manasquan, NJ 08736";
               }}
-              //****** ONLY For Demo --- End
+            //****** ONLY For Demo --- End
             />
 
             {/* Product Field */}
@@ -229,7 +232,7 @@ export default function Inquiry() {
                 e.target.value =
                   "Dear MMC Team, I would like to inquire about the availability of your services for an upcoming event. Please let me know the details at your earliest convenience. Thank you!";
               }}
-              //****** ONLY For Demo --- End
+            //****** ONLY For Demo --- End
             ></textarea>
           </div>
 
