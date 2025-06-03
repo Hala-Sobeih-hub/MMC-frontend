@@ -158,7 +158,7 @@ export default function AdminUsers() {
         </tbody>
       </table>
 
-      {/* Deletion Requests */}
+      {/* Deletion Requests
       <h2 className="text-2xl font-bold mt-8 mb-4">Deletion Requests</h2>
       <ul className="divide-y divide-gray-200">
         {deletionRequests.map((request) => (
@@ -190,7 +190,7 @@ export default function AdminUsers() {
             </div>
           </li>
         ))}
-      </ul>
+      </ul> */}
     </div>
   );
 }

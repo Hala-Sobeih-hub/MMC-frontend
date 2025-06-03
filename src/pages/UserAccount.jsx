@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import profilePlaceholder from "../assets/images/empty-profile-pic.jpg";
 import { useNavigate } from "react-router-dom";
 
-
-
 const UserAccount = ({ setUser, user }) => {
     const [bookings, setBookings] = useState([]);
     const [editMode, setEditMode] = useState(false);
@@ -27,7 +25,6 @@ const UserAccount = ({ setUser, user }) => {
         })
             .then((res) => res.json())
             .then((data) => {
-                console.log(data)
                 setUser(data.result);
                 setForm({
                     firstName: data.result.firstName || "",
@@ -78,6 +75,26 @@ const UserAccount = ({ setUser, user }) => {
         setUser((prev) => ({ ...prev, ...form, profilePic: form.profilePic }));
         setEditMode(false);
     };
+
+    // // Handle account deletion request
+    // const handleDeleteRequest = async () => {
+    //     try {
+    //         const response = await fetch("http://localhost:8080/api/users/request-deletion", {
+    //             method: "POST",
+    //             headers: {
+    //                 "Content-Type": "application/json",
+    //             },
+    //             body: JSON.stringify({ username: user.username }),
+    //         });
+    //         if (response.ok) {
+    //             alert("Your account deletion request has been sent to the admin.");
+    //         } else {
+    //             alert("Failed to send deletion request.");
+    //         }
+    //     } catch (err) {
+    //         alert("An error occurred while sending the request.");
+    //     }
+    // };
 
     if (!user) return <div className="p-8">Loading...</div>;
 
@@ -135,13 +152,23 @@ const UserAccount = ({ setUser, user }) => {
                     <div><strong>Phone:</strong> {user.phoneNumber}</div>
                     <div><strong>Address:</strong> {user.deliveryAddress?.streetAddress || user.deliveryAddress}</div>
                     <button className="btn btn-secondary mt-2" onClick={() => setEditMode(true)}>Edit Profile</button>
+                    {/* <button
+                        type="button"
+                        className="text-red-600 hover:text-red-800 hover:underline cursor-pointer mt-2"
+                        onClick={handleDeleteRequest}
+                    >
+                        Request Account Deletion
+                    </button> */}
                 </div>
             )}
             <h2 className="text-xl font-semibold mb-2">My Bookings</h2>
             <button
                 type="button"
                 className="btn btn-secondary mt-2"
-                onClick={() => navigate("/my-bookings")}>View Previous Bookings</button>
+                onClick={() => navigate("/my-bookings")}
+            >
+                View Previous Bookings
+            </button>
         </div>
     );
 };
